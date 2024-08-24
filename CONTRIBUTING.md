@@ -65,4 +65,4 @@ In your PR description, please reference the issue you are addressing (e.g., "Cl
 
 ## 8. Code review and feedback
 
-Our maintainers will review your PR, and we might ask for some modifications or clarifications before merging the code. Don’t worry if this happens—it’s a normal part of the process, and our goal is to collaborate to get the best result.. Once everything looks good, your contribution will be merged into the project!
+Our maintainers will review your PR, and we might ask for some modifications or clarifications before merging the code. Don’t worry if this happens—it’s a normal part of the process, and our goal is to collaborate to get the best result. Once everything looks good, your contribution will be merged into the project!
