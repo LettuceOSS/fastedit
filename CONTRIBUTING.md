@@ -8,14 +8,14 @@ This document outlines the ways you can get involved and the steps to ensure you
 
 ## Table of contents
 
-[1. Create an issue](#1-create-an-issue)
-[2. Fork the repository and create a branch](#2-fork-the-repository-and-create-a-branch)
-[3. Set up your development environment](#3-set-up-your-development-environment)
-[4. Make your changes](#4-make-your-changes)
-[5. Add or update documentation](#5-add-or-update-documentation)
-[6. Add or update tests](#6-add-or-update-tests)
-[7. Submit a pull request](#7-submit-a-pull-request)
-[8. Code review and feedback](#8-code-review-and-feedback)
+##### [1. Create an issue](#1-create-an-issue)
+##### [2. Fork the repository and create a branch](#2-fork-the-repository-and-create-a-branch)
+##### [3. Set up your development environment](#3-set-up-your-development-environment)
+##### [4. Make your changes](#4-make-your-changes)
+##### [5. Add or update documentation](#5-add-or-update-documentation)
+##### [6. Add or update tests](#6-add-or-update-tests)
+##### [7. Submit a pull request](#7-submit-a-pull-request)
+##### [8. Code review and feedback](#8-code-review-and-feedback)
 
 ## 1. Create an issue
 
