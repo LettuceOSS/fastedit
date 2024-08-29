@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fastedit"
+description = "Python library that simplifies video editing"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Multimedia :: Video",
+]
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://github.com/LettuceOSS/fastedit"
+Issues = "https://github.com/LettuceOSS/fastedit/issues"
+
+[tool.setuptools.dynamic]
+version = {attr = "fastedit.__version__"}
