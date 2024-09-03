@@ -1,0 +1,49 @@
+name: Continuous Integration
+
+on:
+  pull_request:
+    branches:
+      - 'main'
+
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install FFmpeg
+      run: sudo apt update && sudo install ffmpeg -y
+    - name: Verify FFmpeg installation
+      run: ffmpeg -version
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ffmpeg
+        path: /usr/bin/ffmpeg
+  Test:
+    needs: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ffmpeg
+          path: /usr/bin/
+      - name: Install test dependencies
+        run : pip install -e .[test]
+      - name: Perform test
+        run: pytest
+  Quality:
+    needs: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ffmpeg
+          path: /usr/bin/
+      - name: Install lint dependencies
+        run: pip install -e .[lint]
+      - name: Perform lint
+        run: flake8
