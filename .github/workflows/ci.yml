@@ -5,6 +5,9 @@ on:
     branches:
       - 'main'
 
+env:
+  FFMPEG_BIN: /tmp/ffmpeg
+
 jobs:
   Build:
     runs-on: ubuntu-latest
@@ -27,7 +30,11 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
-          path: ./tmp/ffmpeg
+          path: $FFMPEG_BIN
+      - name: Add tmp path to $PATH
+        run: echo "$FFMPEG_BIN" >> $GITHUB_ENV
+      - name: Check FFmpeg installation
+        run: ffmpeg -version
       - name: Upgrade pip
         run: pip install --upgrade pip
       - name: Install test dependencies
@@ -42,8 +49,9 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
-          name: ffmpeg
-          path: /usr/bin/
+          path: $FFMPEG_BIN
+      - name: Upgrade pip
+        run: pip install --upgrade pip
       - name: Install lint dependencies
         run: pip install -e .[lint]
       - name: Perform lint
