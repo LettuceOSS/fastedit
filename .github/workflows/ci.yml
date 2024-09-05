@@ -34,6 +34,8 @@ jobs:
         with:
           name: ffmpeg
           path: ${{ env.FFMPEG_BIN_DIR }}
+      - name: Changing permissions on FFmpeg folder
+        run: sudo chmod +x $FFMPEG_BIN_DIR
       - name: Add tmp path to $PATH
         run: echo "$FFMPEG_BIN_DIR" >> $GITHUB_PATH
       - name: Verify FFmpeg installation
