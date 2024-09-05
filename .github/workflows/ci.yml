@@ -18,7 +18,7 @@ jobs:
     - name: Verify FFmpeg installation
       run: ffmpeg -version
     - name: Changing permissions on FFmpeg
-      run: chmod +x /usr/bin/ffmpeg
+      run: sudo chmod +x /usr/bin/ffmpeg
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
