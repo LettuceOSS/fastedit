@@ -35,7 +35,7 @@ jobs:
       - name: Add tmp path to $PATH
         run: echo "$FFMPEG_BIN_DIR" >> $GITHUB_PATH
       - name: Check FFmpeg installation
-        run: ls && ffmpeg -version
+        run: ls && echo "$GITHUB_PATH" && ffmpeg -version
       - name: Upgrade pip
         run: pip install --upgrade pip
       - name: Install test dependencies
