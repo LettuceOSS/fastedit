@@ -28,8 +28,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: ./tmp/ffmpeg
+      - name: Upgrade pip
+        run: pip install --upgrade pip
       - name: Install test dependencies
-        run : pip install -e .[test]
+        run: pip install -e .[test]
       - name: Perform test
         run: pytest
   Quality:
