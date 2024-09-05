@@ -6,7 +6,7 @@ on:
       - 'main'
 
 env:
-  FFMPEG_BIN: /tmp/ffmpeg
+  FFMPEG_BIN_DIR: /tmp
 
 jobs:
   Build:
@@ -30,9 +30,10 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
-          path: $FFMPEG_BIN
+          name: ffmpeg
+          path: $FFMPEG_BIN_DIR
       - name: Add tmp path to $PATH
-        run: echo "$FFMPEG_BIN" >> $GITHUB_ENV
+        run: echo "$FFMPEG_BIN_DIR" >> $GITHUB_PATH
       - name: Check FFmpeg installation
         run: ffmpeg -version
       - name: Upgrade pip
