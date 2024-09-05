@@ -27,8 +27,7 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
-          name: ffmpeg
-          path: /usr/bin/
+          path: /usr/bin/ffmpeg
       - name: Install test dependencies
         run : pip install -e .[test]
       - name: Perform test
