@@ -31,7 +31,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ffmpeg
-          path: $FFMPEG_BIN_DIR
+          path: ${{ env.FFMPEG_BIN_DIR }}
       - name: Add tmp path to $PATH
         run: echo "$FFMPEG_BIN_DIR" >> $GITHUB_PATH
       - name: Check FFmpeg installation
