@@ -33,6 +33,8 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ffmpeg
+      - name: Changing permissions on FFmpeg
+        run: sudo chmod +x ./ffmpeg
       - name: Make FFmpeg executable available in PATH
         run: sudo mv ./ffmpeg $FFMPEG_BIN_DIR/ffmpeg
       - name: Verify FFmpeg installation
