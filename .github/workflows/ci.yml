@@ -6,7 +6,7 @@ on:
       - 'main'
 
 env:
-  FFMPEG_BIN_DIR: /tmp
+  FFMPEG_BIN_DIR: /usr/local/bin
 
 jobs:
   Build:
@@ -33,13 +33,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ffmpeg
-          path: ${{ env.FFMPEG_BIN_DIR }}
-      - name: Changing permissions on FFmpeg folder
-        run: sudo chmod +x $FFMPEG_BIN_DIR
-      - name: Add tmp path to $PATH
-        run: echo "$FFMPEG_BIN_DIR" >> $GITHUB_PATH
+      - name: Make FFmpeg executable available in PATH
+        run: sudo mv ./ffmpeg $FFMPEG_BIN_DIR/ffmpeg
       - name: Verify FFmpeg installation
-        run: ls && echo "$GITHUB_PATH" && ffmpeg -version
+        run: ffmpeg -version
       - name: Upgrade pip
         run: pip install --upgrade pip
       - name: Install test dependencies
