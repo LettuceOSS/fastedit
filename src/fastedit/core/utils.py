@@ -1,6 +1,7 @@
 from mimetypes import guess_type
 from os.path import isfile
 
+
 def _guess_file_type(
     path: str
 ):
@@ -23,7 +24,8 @@ def _guess_file_type(
     # Verifying path's type
     if not isinstance(path, str):
         raise TypeError(
-            f"Expected 'path' to be of type 'str', but got '{type(path).__name__}' instead."
+            f"Expected 'path' to be of type 'str', but got "
+            f"'{type(path).__name__}' instead."
         )
     # Verifying existence
     if not isfile(path):
