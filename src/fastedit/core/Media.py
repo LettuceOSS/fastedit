@@ -3,6 +3,7 @@ import shutil
 from tempfile import TemporaryDirectory
 from fastedit.core.utils import _guess_file_type
 
+
 class _Media:
     def __init__(
         self,
@@ -26,7 +27,8 @@ class _Media:
         # Verifying path's type
         if not isinstance(path, str):
             raise TypeError(
-                f"Expected 'path' to be of type 'str', but got '{type(path).__name__}' instead."
+                f"Expected 'path' to be of type 'str', but got "
+                f"'{type(path).__name__}' instead."
             )
         # Verifying if path exists
         if not os.path.exists(path):
@@ -35,8 +37,11 @@ class _Media:
             )
         # Verifying media mimetype
         file_mime_type = _guess_file_type(path)
-        if not file_mime_type in ["video", "audio"]:
-            raise TypeError(f"Invalid file type: Expected a video or audio file, got {file_mime_type} file instead.")
+        if file_mime_type not in ["video", "audio"]:
+            raise TypeError(
+                f"Invalid file type: Expected a video or audio file, got "
+                f"{file_mime_type} file instead."
+            )
         # Creating a temp directory for intermediate results
         cwd = os.getcwd()
         self._temp_dir = TemporaryDirectory(
