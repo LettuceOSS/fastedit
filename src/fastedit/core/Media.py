@@ -1,5 +1,6 @@
 import os
 import shutil
+import ffmpeg
 from tempfile import TemporaryDirectory
 from fastedit.core.utils import _guess_file_type
 
@@ -14,7 +15,7 @@ class _Media:
 
         Parameters
         ----------
-        path : str
+        path: str
             Path to the media file.
 
         Raises
@@ -63,3 +64,96 @@ class _Media:
             path,
             self._main_temp_file
         )
+
+    def __refactor_ffprobe_data(
+        self,
+        ffprobe_metadata: dict
+    ):
+        """
+        Filters and refactors FFprobe metadata.
+
+        Parameters
+        ----------
+        ffprobe_metadata: dict
+            Dictionary containing FFprobe metadata.
+
+        Returns
+        -------
+        ffprobe_metadata_refactored: dict
+            Dictionary containing refactored media's metadata.
+
+        Raises
+        ------
+        TypeError
+            If ffprobe_metadata is not a dict.
+        """
+        # Verifying FFprobe's metadata type
+        if not isinstance(ffprobe_metadata, dict):
+            raise TypeError(
+                f"Expected 'ffprobe_metadata' to be of type 'dict', but got "
+                f"'{type(ffprobe_metadata).__name__}' instead."
+            )
+        # Selecting and refactoring format metadata
+        format_data = ffprobe_metadata["format"]
+        format_data_to_keep = [
+            "format_name",
+            "start_time",
+            "duration",
+            "size",
+            "bit_rate"
+        ]
+        format_existing_keys = list(format_data.keys())
+        ffprobe_metadata_refactored = {
+            key: format_data[key]
+            for key in format_data_to_keep
+            if key in format_existing_keys
+        }
+        # Selecting and refactoring streams metadata
+        streams_data = ffprobe_metadata["streams"]
+        streams_data_to_keep = [
+            "codec_type",
+            "codec_name",
+            "width",
+            "height",
+            "coded_width",
+            "coded_height",
+            "display_aspect_ratio",
+            "pix_fmt",
+            "duration",
+            "bit_rate",
+            "nb_frames",
+            "sample_rate",
+            "channels",
+            "channel_layout"
+        ]
+        streams_refactored = []
+        for stream in streams_data:
+            streams_existing_keys = list(stream.keys())
+            stream_filtered = {
+                key: stream[key]
+                for key in streams_data_to_keep
+                if key in streams_existing_keys
+            }
+            streams_refactored.append(
+                stream_filtered
+            )
+        # Aggregating metadata in one dict
+        ffprobe_metadata_refactored["streams"] = streams_refactored
+        return ffprobe_metadata_refactored
+
+    def metadata(
+        self
+    ):
+        """
+        Gather metadata about the media.
+
+        Returns
+        -------
+        media_metadata: dict
+            Dictionary containing media's metadata.
+        """
+        ffprobe_metadata = ffmpeg.probe(
+            filename=self._main_temp_file
+        )
+        media_metadata = self.__refactor_ffprobe_data(ffprobe_metadata)
+        return media_metadata
