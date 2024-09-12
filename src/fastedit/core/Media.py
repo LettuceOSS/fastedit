@@ -157,3 +157,63 @@ class _Media:
         )
         media_metadata = self.__refactor_ffprobe_data(ffprobe_metadata)
         return media_metadata
+
+    def __move_and_replace(
+        self
+    ):
+        """
+        Moving second file to main file
+        """
+        shutil.move(
+            src=self._second_temp_file,
+            dst=self._main_temp_file
+        )
+
+    def clip(
+        self,
+        start: float,
+        end: float
+    ):
+        """
+        Extracts a portion of the video.
+
+        Parameters
+        ----------
+        start: float
+            Start time of the clip in seconds.
+        end: float
+            End time of the clip in seconds.
+        """
+        # Verifying parameters types
+        if not isinstance(start, (float, int)):
+            raise TypeError(
+                f"Expected 'start' to be of type 'float' or 'int', but got "
+                f"'{type(start).__name__}' instead."
+            )
+        if not isinstance(end, (float, int)):
+            raise TypeError(
+                f"Expected 'end' to be of type 'float' or 'int', but got "
+                f"'{type(start).__name__}' instead."
+            )
+        # Trimming input video
+        input = ffmpeg.input(
+            filename=self._main_temp_file,
+            ss=start,
+            to=end
+        )
+        # Defining output and codec copying
+        output = ffmpeg.output(
+            input,
+            self._second_temp_file,
+            c="copy"
+        )
+        overwrite = ffmpeg.overwrite_output(
+            output
+        )
+        # Running command
+        ffmpeg.run(
+            stream_spec=overwrite,
+            quiet=True
+        )
+        # Saving result to main file
+        self.__move_and_replace()
