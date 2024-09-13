@@ -1,6 +1,7 @@
 import os
 import shutil
 import ffmpeg
+from typing import Union
 from tempfile import TemporaryDirectory
 from fastedit.core.utils import _guess_file_type
 
@@ -171,8 +172,8 @@ class _Media:
 
     def clip(
         self,
-        start: float,
-        end: float
+        start: Union[int, float],
+        end: Union[int, float]
     ):
         """
         Extracts a portion of the video.
@@ -183,6 +184,11 @@ class _Media:
             Start time of the clip in seconds.
         end: float
             End time of the clip in seconds.
+
+        Raises
+        ------
+        TypeError
+            If start or end are not int or float.
         """
         # Verifying parameters types
         if not isinstance(start, (float, int)):
