@@ -127,6 +127,8 @@ def test_video_clip_start_greater_than_end():
 
 def test_video_clip_start_and_end_greater_than_video_duration():
     video = Video(test_files[0])
+    metadata = video.metadata()
+    video_duration = float(metadata["duration"])
     with pytest.raises(ValueError) as error:
         video.clip(
             start=20,
@@ -135,7 +137,7 @@ def test_video_clip_start_and_end_greater_than_video_duration():
     expected_error = (
         "Invalid 'end' value: 'end' must be less than or equal to "
         "the media duration. Got end=25, but media duration is "
-        "15.627007."
+        f"{video_duration}."
     )
     assert str(error.value) == expected_error
 
