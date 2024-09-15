@@ -223,3 +223,49 @@ class _Media:
         )
         # Saving result to main file
         self.__move_and_replace()
+
+    def loop(
+        self,
+        duration: Union[int, float]
+    ):
+        """
+        Loops a media over a specified time period.
+
+        Parameters
+        ----------
+        duration: int or float
+            The duration, in seconds, for which the media will loop.
+
+        Raises
+        ------
+        TypeError
+            If duration is not int or float.
+        """
+        # Verifying parameters types
+        if not isinstance(duration, (float, int)):
+            raise TypeError(
+                f"Expected 'duration' to be of type 'float' or 'int', but got "
+                f"'{type(duration).__name__}' instead."
+            )
+        # Looping input video
+        input = ffmpeg.input(
+            filename=self._main_temp_file,
+            stream_loop="-1",
+            t=duration
+        )
+        # Defining output and codec copying
+        output = ffmpeg.output(
+            input,
+            self._second_temp_file,
+            c="copy"
+        )
+        overwrite = ffmpeg.overwrite_output(
+            output
+        )
+        # Running command
+        ffmpeg.run(
+            stream_spec=overwrite,
+            quiet=True
+        )
+        # Saving result to main file
+        self.__move_and_replace()
