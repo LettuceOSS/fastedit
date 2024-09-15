@@ -176,7 +176,7 @@ class _Media:
         end: Union[int, float]
     ):
         """
-        Extracts a portion of the video.
+        Extracts a portion of the media.
 
         Parameters
         ----------
@@ -201,7 +201,7 @@ class _Media:
                 f"Expected 'end' to be of type 'float' or 'int', but got "
                 f"'{type(start).__name__}' instead."
             )
-        # Trimming input video
+        # Trimming input media
         input = ffmpeg.input(
             filename=self._main_temp_file,
             ss=start,
@@ -247,7 +247,7 @@ class _Media:
                 f"Expected 'duration' to be of type 'float' or 'int', but got "
                 f"'{type(duration).__name__}' instead."
             )
-        # Looping input video
+        # Looping input media
         input = ffmpeg.input(
             filename=self._main_temp_file,
             stream_loop="-1",
