@@ -189,6 +189,10 @@ class _Media:
         ------
         TypeError
             If start or end are not int or float.
+        ValueError
+            If end is not strictly greater than start.
+        ValueError
+            If end is strictly greater than media duration.
         """
         # Verifying parameters types
         if not isinstance(start, (float, int)):
@@ -200,6 +204,20 @@ class _Media:
             raise TypeError(
                 f"Expected 'end' to be of type 'float' or 'int', but got "
                 f"'{type(start).__name__}' instead."
+            )
+        # Verifying parameters consistency
+        if not end > start:
+            raise ValueError(
+                f"Invalid 'end' value: 'end' must be strictly greater than "
+                f"'start'. Got start={start} and end={end}."
+            )
+        metadata = self.metadata()
+        media_duration = float(metadata["duration"])
+        if not end <= media_duration:
+            raise ValueError(
+                f"Invalid 'end' value: 'end' must be less than or equal to "
+                f"the media duration. Got end={end}, but media duration is "
+                f"{media_duration}."
             )
         # Trimming input media
         input = ffmpeg.input(

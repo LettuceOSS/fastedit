@@ -55,7 +55,7 @@ def test_video_metadata_without_ffprobe(monkeypatch):
     assert str(error.value) == expected_error
 
 
-def test_video_cut_int_int():
+def test_video_clip_int_int():
     video = Video(test_files[0])
     video.clip(
         start=0,
@@ -69,7 +69,7 @@ def test_video_cut_int_int():
     assert output["streams"][1]["codec_name"] == "aac"
 
 
-def test_video_cut_int_float():
+def test_video_clip_int_float():
     video = Video(test_files[0])
     video.clip(
         start=0,
@@ -83,7 +83,7 @@ def test_video_cut_int_float():
     assert output["streams"][1]["codec_name"] == "aac"
 
 
-def test_video_cut_float_int():
+def test_video_clip_float_int():
     video = Video(test_files[0])
     video.clip(
         start=0.1,
@@ -97,7 +97,7 @@ def test_video_cut_float_int():
     assert output["streams"][1]["codec_name"] == "aac"
 
 
-def test_video_cut_float_float():
+def test_video_clip_float_float():
     video = Video(test_files[0])
     video.clip(
         start=0.1,
@@ -111,7 +111,36 @@ def test_video_cut_float_float():
     assert output["streams"][1]["codec_name"] == "aac"
 
 
-def test_video_cut_without_ffmpeg(monkeypatch):
+def test_video_clip_start_greater_than_end():
+    video = Video(test_files[0])
+    with pytest.raises(ValueError) as error:
+        video.clip(
+            start=10,
+            end=0
+        )
+    expected_error = (
+        "Invalid 'end' value: 'end' must be strictly greater than "
+        "'start'. Got start=10 and end=0."
+    )
+    assert str(error.value) == expected_error
+
+
+def test_video_clip_start_and_end_greater_than_video_duration():
+    video = Video(test_files[0])
+    with pytest.raises(ValueError) as error:
+        video.clip(
+            start=20,
+            end=25
+        )
+    expected_error = (
+        "Invalid 'end' value: 'end' must be less than or equal to "
+        "the media duration. Got end=25, but media duration is "
+        "15.627007."
+    )
+    assert str(error.value) == expected_error
+
+
+def test_video_clip_without_ffmpeg(monkeypatch):
     # Mocking FFmpeg not installed
     def mock_ffmpeg(*args, **kwargs):
         raise ffmpeg.Error(
