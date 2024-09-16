@@ -53,6 +53,8 @@ class Video(_Media):
             If height or width are not int.
         ValueError
             If height or width are not positive integer.
+        ValueError
+            If height or width are not divisible by 2.
         """
         # Verifying parameters types
         if not isinstance(height, int):
