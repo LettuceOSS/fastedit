@@ -159,7 +159,7 @@ class _Media:
         media_metadata = self.__refactor_ffprobe_data(ffprobe_metadata)
         return media_metadata
 
-    def __move_and_replace(
+    def _move_and_replace(
         self
     ):
         """
@@ -240,7 +240,7 @@ class _Media:
             quiet=True
         )
         # Saving result to main file
-        self.__move_and_replace()
+        self._move_and_replace()
 
     def loop(
         self,
@@ -286,4 +286,4 @@ class _Media:
             quiet=True
         )
         # Saving result to main file
-        self.__move_and_replace()
+        self._move_and_replace()
