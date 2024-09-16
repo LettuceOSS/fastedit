@@ -215,3 +215,117 @@ def test_video_loop_without_ffmpeg(monkeypatch):
         "ffmpeg error (see stderr output for detail)"
     )
     assert str(error.value) == expected_error
+
+
+def test_video_resize_float_int():
+    video = Video(test_files[0])
+    with pytest.raises(TypeError) as error:
+        video.resize(
+            height=426.1,
+            width=240
+        )
+    expected_error = (
+        "Expected 'height' to be of type 'int', but got "
+        "'float' instead."
+    )
+    assert str(error.value) == expected_error
+
+
+def test_video_resize_int_float():
+    video = Video(test_files[0])
+    with pytest.raises(TypeError) as error:
+        video.resize(
+            height=426,
+            width=240.1
+        )
+    expected_error = (
+        "Expected 'width' to be of type 'int', but got "
+        "'float' instead."
+    )
+    assert str(error.value) == expected_error
+
+
+def test_video_resize_float_float():
+    video = Video(test_files[0])
+    with pytest.raises(TypeError) as error:
+        video.resize(
+            height=426.1,
+            width=240.1
+        )
+    expected_error = (
+        "Expected 'height' to be of type 'int', but got "
+        "'float' instead."
+    )
+    assert str(error.value) == expected_error
+
+
+def test_video_resize_negative_positive():
+    video = Video(test_files[0])
+    with pytest.raises(ValueError) as error:
+        video.resize(
+            height=-426,
+            width=240
+        )
+    expected_error = (
+        "Invalid value: 'height' and 'width' must be positive integers. Got "
+        "height=-426, width=240."
+    )
+    assert str(error.value) == expected_error
+
+
+def test_video_resize_positive_negative():
+    video = Video(test_files[0])
+    with pytest.raises(ValueError) as error:
+        video.resize(
+            height=426,
+            width=-240
+        )
+    expected_error = (
+        "Invalid value: 'height' and 'width' must be positive integers. Got "
+        "height=426, width=-240."
+    )
+    assert str(error.value) == expected_error
+
+
+def test_video_resize_negative_negative():
+    video = Video(test_files[0])
+    with pytest.raises(ValueError) as error:
+        video.resize(
+            height=-426,
+            width=-240
+        )
+    expected_error = (
+        "Invalid value: 'height' and 'width' must be positive integers. Got "
+        "height=-426, width=-240."
+    )
+    assert str(error.value) == expected_error
+
+
+def test_video_resize_positive_positive():
+    video = Video(test_files[0])
+    video.resize(
+        height=426,
+        width=240
+    )
+    output = video.metadata()
+    assert output["format_name"] == "mov,mp4,m4a,3gp,3g2,mj2"
+    assert int(float(output["duration"])) == 15
+    assert len(output["streams"]) == 2
+    assert output["streams"][0]["codec_name"] == "h264"
+    assert output["streams"][1]["codec_name"] == "aac"
+    assert output["streams"][0]["height"] == 426
+    assert output["streams"][0]["width"] == 240
+
+
+def test_video_resize_not_divisible_by_2():
+    video = Video(test_files[0])
+    with pytest.raises(ValueError) as error:
+        video.resize(
+            height=427,
+            width=241
+        )
+    expected_error = (
+        "Invalid value: 'height' and 'width' must be "
+        "divisible by 2. Got height=427 and width=241."
+    )
+    assert str(error.value) == expected_error
