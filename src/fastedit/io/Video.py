@@ -98,3 +98,90 @@ class Video(_Media):
         )
         # Saving result to main file
         self._move_and_replace()
+
+    def crop(
+        self,
+        x: int,
+        y: int,
+        height: int,
+        width: int
+    ):
+        """
+        Crop the video to a specific rectangular area.
+
+        Parameters
+        ----------
+        x: int
+            The x-coordinate of the center of the crop area.
+        y: int
+            The y-coordinate of the center of the crop area.
+        height: int
+            The height of the crop area in pixels. Must be a positive integer.
+        width: int
+            The width of the crop area in pixels. Must be a positive integer.
+
+        Raises
+        ------
+        TypeError
+            If x, y, height, or width are not of type `int`.
+        ValueError
+            If the provided height or width are not positive integers.
+        """
+        # Verifying parameters types
+        if not isinstance(x, int):
+            raise TypeError(
+                f"Expected 'x' to be of type 'int', but got "
+                f"'{type(x).__name__}' instead."
+            )
+        if not isinstance(y, int):
+            raise TypeError(
+                f"Expected 'y' to be of type 'int', but got "
+                f"'{type(y).__name__}' instead."
+            )
+        if not isinstance(height, int):
+            raise TypeError(
+                f"Expected 'height' to be of type 'int', but got "
+                f"'{type(height).__name__}' instead."
+            )
+        if not isinstance(width, int):
+            raise TypeError(
+                f"Expected 'width' to be of type 'int', but got "
+                f"'{type(width).__name__}' instead."
+            )
+        # Verifying parameters values
+        if height <= 0 or width <= 0:
+            raise ValueError(
+                f"Invalid value: 'height' and 'width' must be positive "
+                f"integers. Got height={height}, width={width}."
+            )
+        # Getting vertical and horizontal positions for FFmpeg
+        cropped_x = x - (width/2)
+        cropped_y = y - (height/2)
+        # Input video
+        input = ffmpeg.input(
+            filename=self._main_temp_file,
+        )
+        # Cropping video
+        crop = ffmpeg.crop(
+            stream=input,
+            x=cropped_x,
+            y=cropped_y,
+            height=height,
+            width=width
+        )
+        # Defining output and codec copying
+        output = ffmpeg.output(
+            crop,
+            self._second_temp_file,
+            acodec="copy"
+        )
+        overwrite = ffmpeg.overwrite_output(
+            output
+        )
+        # Running command
+        ffmpeg.run(
+            stream_spec=overwrite,
+            quiet=True
+        )
+        # Saving result to main file
+        self._move_and_replace()
