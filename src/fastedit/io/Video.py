@@ -159,7 +159,7 @@ class Video(_Media):
         cropped_y = y - (height/2)
         # Input video
         input = ffmpeg.input(
-            filename=self._main_temp_file,
+            filename=self._main_temp_file
         )
         # Cropping video
         crop = ffmpeg.crop(
@@ -172,6 +172,7 @@ class Video(_Media):
         # Defining output and codec copying
         output = ffmpeg.output(
             crop,
+            input.audio,
             self._second_temp_file,
             acodec="copy"
         )

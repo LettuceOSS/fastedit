@@ -329,3 +329,117 @@ def test_video_resize_not_divisible_by_2():
         "divisible by 2. Got height=427 and width=241."
     )
     assert str(error.value) == expected_error
+
+
+def test_video_crop_all_int():
+    video = Video(test_files[0])
+    video.crop(
+        x=960,
+        y=540,
+        height=480,
+        width=640
+    )
+    output = video.metadata()
+    assert output["format_name"] == "mov,mp4,m4a,3gp,3g2,mj2"
+    assert int(float(output["duration"])) == 15
+    assert len(output["streams"]) == 2
+    assert output["streams"][0]["codec_name"] == "h264"
+    assert output["streams"][1]["codec_name"] == "aac"
+    assert output["streams"][0]["height"] == 480
+    assert output["streams"][0]["width"] == 640
+
+
+def test_video_crop_x_not_int():
+    video = Video(test_files[0])
+    with pytest.raises(TypeError) as error:
+        video.crop(
+            x=960.1,
+            y=540,
+            height=480,
+            width=640
+        )
+    expected_error = (
+        "Expected 'x' to be of type 'int', but got "
+        "'float' instead."
+    )
+    assert str(error.value) == expected_error
+
+
+def test_video_crop_y_not_int():
+    video = Video(test_files[0])
+    with pytest.raises(TypeError) as error:
+        video.crop(
+            x=960,
+            y=540.1,
+            height=480,
+            width=640
+        )
+    expected_error = (
+        "Expected 'y' to be of type 'int', but got "
+        "'float' instead."
+    )
+    assert str(error.value) == expected_error
+
+
+def test_video_crop_height_not_int():
+    video = Video(test_files[0])
+    with pytest.raises(TypeError) as error:
+        video.crop(
+            x=960,
+            y=540,
+            height=480.1,
+            width=640
+        )
+    expected_error = (
+        "Expected 'height' to be of type 'int', but got "
+        "'float' instead."
+    )
+    assert str(error.value) == expected_error
+
+
+def test_video_crop_width_not_int():
+    video = Video(test_files[0])
+    with pytest.raises(TypeError) as error:
+        video.crop(
+            x=960,
+            y=540,
+            height=480,
+            width=640.1
+        )
+    expected_error = (
+        "Expected 'width' to be of type 'int', but got "
+        "'float' instead."
+    )
+    assert str(error.value) == expected_error
+
+
+def test_video_crop_width_negative():
+    video = Video(test_files[0])
+    with pytest.raises(ValueError) as error:
+        video.crop(
+            x=960,
+            y=540,
+            height=480,
+            width=-1
+        )
+    expected_error = (
+        "Invalid value: 'height' and 'width' must be positive "
+        "integers. Got height=480, width=-1."
+    )
+    assert str(error.value) == expected_error
+
+
+def test_video_crop_height_negative():
+    video = Video(test_files[0])
+    with pytest.raises(ValueError) as error:
+        video.crop(
+            x=960,
+            y=540,
+            height=-1,
+            width=640
+        )
+    expected_error = (
+        "Invalid value: 'height' and 'width' must be positive "
+        "integers. Got height=-1, width=640."
+    )
+    assert str(error.value) == expected_error
