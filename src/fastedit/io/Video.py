@@ -290,3 +290,58 @@ class Video(_Media):
         )
         # Saving result to main file
         self._move_and_replace()
+
+    def text(
+        self,
+        x: int,
+        y: int,
+        start: Union[int, float],
+        end: Union[int, float],
+        text: str,
+        fontfile: str = "",
+        fontsize: int = 24,
+        fontcolor: str = "white",
+        borderw: int = 5,
+        bordercolor: str = "black",
+        box: bool = False,
+        boxborderw: int = 5,
+        boxcolor: str = "black"
+    ):
+        """
+        """
+        box_enabled = int(box == True)
+        # Input video
+        input = ffmpeg.input(
+            filename=self._main_temp_file
+        )
+        # Text in video
+        zoom = ffmpeg.drawtext(
+            input,
+            x=f"{x}-(text_w)/2",
+            y=f"{y}-(text_h)/2",
+            text=text,
+            enable=f"between(t,{start},{end})",
+            fontfile=fontfile,
+            fontsize=fontsize,
+            fontcolor=fontcolor,
+            borderw=borderw,
+            bordercolor=bordercolor,
+            box=box_enabled,
+            boxborderw=boxborderw,
+            boxcolor=boxcolor
+        )
+        # Defining output and codec copying
+        output = ffmpeg.output(
+            zoom,
+            self._second_temp_file
+        )
+        overwrite = ffmpeg.overwrite_output(
+            output
+        )
+        # Running command
+        ffmpeg.run(
+            stream_spec=overwrite,
+            quiet=True
+        )
+        # Saving result to main file
+        self._move_and_replace()
