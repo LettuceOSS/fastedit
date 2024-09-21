@@ -331,6 +331,31 @@ def test_video_resize_not_divisible_by_2():
     assert str(error.value) == expected_error
 
 
+def test_video_resize_without_ffmpeg(monkeypatch):
+    # Mocking FFmpeg not installed
+    def mock_ffmpeg(*args, **kwargs):
+        raise ffmpeg.Error(
+            "ffmpeg",
+            "stdout",
+            "stderr"
+        )
+
+    # Replace ffmpeg.probe by mocking
+    monkeypatch.setattr(ffmpeg, "run", mock_ffmpeg)
+
+    # Testing
+    video = Video(test_files[0])
+    with pytest.raises(ffmpeg.Error) as error:
+        video.resize(
+            height=426,
+            width=240
+        )
+    expected_error = (
+        "ffmpeg error (see stderr output for detail)"
+    )
+    assert str(error.value) == expected_error
+
+
 def test_video_crop_all_int():
     video = Video(test_files[0])
     video.crop(
@@ -445,6 +470,33 @@ def test_video_crop_height_negative():
     assert str(error.value) == expected_error
 
 
+def test_video_crop_without_ffmpeg(monkeypatch):
+    # Mocking FFmpeg not installed
+    def mock_ffmpeg(*args, **kwargs):
+        raise ffmpeg.Error(
+            "ffmpeg",
+            "stdout",
+            "stderr"
+        )
+
+    # Replace ffmpeg.probe by mocking
+    monkeypatch.setattr(ffmpeg, "run", mock_ffmpeg)
+
+    # Testing
+    video = Video(test_files[0])
+    with pytest.raises(ffmpeg.Error) as error:
+        video.crop(
+            x=960,
+            y=540,
+            height=480,
+            width=640
+        )
+    expected_error = (
+        "ffmpeg error (see stderr output for detail)"
+    )
+    assert str(error.value) == expected_error
+
+
 def test_video_zoom_in_not_int_or_float_parameter():
     video = Video(test_files[0])
     with pytest.raises(TypeError) as error:
@@ -499,3 +551,27 @@ def test_video_zoom_in_float_parameter():
     assert output["streams"][1]["codec_name"] == "aac"
     assert output["streams"][0]["height"] == 1080
     assert output["streams"][0]["width"] == 1920
+
+
+def test_video_zoom_in_without_ffmpeg(monkeypatch):
+    # Mocking FFmpeg not installed
+    def mock_ffmpeg(*args, **kwargs):
+        raise ffmpeg.Error(
+            "ffmpeg",
+            "stdout",
+            "stderr"
+        )
+
+    # Replace ffmpeg.probe by mocking
+    monkeypatch.setattr(ffmpeg, "run", mock_ffmpeg)
+
+    # Testing
+    video = Video(test_files[0])
+    with pytest.raises(ffmpeg.Error) as error:
+        video.zoom_in(
+            zoom=1.1
+        )
+    expected_error = (
+        "ffmpeg error (see stderr output for detail)"
+    )
+    assert str(error.value) == expected_error
