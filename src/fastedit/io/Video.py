@@ -225,20 +225,49 @@ class Video(_Media):
         zoom: Union[int, float]
     ):
         """
+        Applies a progressive zoom effect until the end of the video.
+
+        Parameters
+        ----------
+        zoom: Union[int, float]
+            The zoom factor to achieve at the end of the video. Range is 0-10.
+
+        Raises
+        ------
+        TypeError
+            If zoom is not of type `int` or `float`.
+        ValueError
+            If zoom is not greater than or equal to 0.
         """
-        # Getting FPS and total number of frames
+        # Verifying parameters types
+        if not isinstance(zoom, (int, float)):
+            raise TypeError(
+                f"Expected 'zoom' to be of type 'int' or 'float', but got "
+                f"'{type(zoom).__name__}' instead."
+            )
+        # Verifying parameter value
+        if zoom < 0:
+            raise ValueError(
+                f"Invalid value: 'zoom' must be greater than or equal to 0. "
+                f"Got zoom={zoom}."
+            )
+        # Getting video metadata
         metadata = self._get_video_metadata()
         fps = math.ceil(eval(metadata["r_frame_rate"]))
         height = metadata["height"]
         width = metadata["width"]
+        total_frames = int(metadata["nb_frames"])
+        # Computing zoom factor
+        zoom_factor = zoom/total_frames
         # Input video
         input = ffmpeg.input(
             filename=self._main_temp_file
         )
-        # Cropping video
-        crop = ffmpeg.zoompan(
+
+        # Zooming in video
+        zoom = ffmpeg.zoompan(
             input,
-            z=f"pzoom+{zoom}",
+            z=f"pzoom+{zoom_factor}",
             x="iw/2-(iw/zoom/2)",
             y="ih/2-(ih/zoom/2)",
             d=1,
@@ -247,7 +276,7 @@ class Video(_Media):
         )
         # Defining output and codec copying
         output = ffmpeg.output(
-            crop,
+            zoom,
             self._second_temp_file
         )
         overwrite = ffmpeg.overwrite_output(
