@@ -125,7 +125,8 @@ class _Media:
             "nb_frames",
             "sample_rate",
             "channels",
-            "channel_layout"
+            "channel_layout",
+            "r_frame_rate"
         ]
         streams_refactored = []
         for stream in streams_data:
