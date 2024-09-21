@@ -340,7 +340,7 @@ def test_video_resize_without_ffmpeg(monkeypatch):
             "stderr"
         )
 
-    # Replace ffmpeg.probe by mocking
+    # Replace ffmpeg.run by mocking
     monkeypatch.setattr(ffmpeg, "run", mock_ffmpeg)
 
     # Testing
@@ -479,7 +479,7 @@ def test_video_crop_without_ffmpeg(monkeypatch):
             "stderr"
         )
 
-    # Replace ffmpeg.probe by mocking
+    # Replace ffmpeg.run by mocking
     monkeypatch.setattr(ffmpeg, "run", mock_ffmpeg)
 
     # Testing
@@ -562,7 +562,7 @@ def test_video_zoom_in_without_ffmpeg(monkeypatch):
             "stderr"
         )
 
-    # Replace ffmpeg.probe by mocking
+    # Replace ffmpeg.run by mocking
     monkeypatch.setattr(ffmpeg, "run", mock_ffmpeg)
 
     # Testing
