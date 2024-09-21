@@ -443,3 +443,59 @@ def test_video_crop_height_negative():
         "integers. Got height=-1, width=640."
     )
     assert str(error.value) == expected_error
+
+
+def test_video_zoom_in_not_int_or_float_parameter():
+    video = Video(test_files[0])
+    with pytest.raises(TypeError) as error:
+        video.zoom_in(
+            zoom="test"
+        )
+    expected_error = (
+        "Expected 'zoom' to be of type 'int' or 'float', but got "
+        "'str' instead."
+    )
+    assert str(error.value) == expected_error
+
+
+def test_video_zoom_in_negative_parameter():
+    video = Video(test_files[0])
+    with pytest.raises(ValueError) as error:
+        video.zoom_in(
+            zoom=-1
+        )
+    expected_error = (
+        "Invalid value: 'zoom' must be greater than or equal to 0. "
+        "Got zoom=-1."
+    )
+    assert str(error.value) == expected_error
+
+
+def test_video_zoom_in_int_parameter():
+    video = Video(test_files[0])
+    video.zoom_in(
+        zoom=1
+    )
+    output = video.metadata()
+    assert output["format_name"] == "mov,mp4,m4a,3gp,3g2,mj2"
+    assert int(float(output["duration"])) == 15
+    assert len(output["streams"]) == 2
+    assert output["streams"][0]["codec_name"] == "h264"
+    assert output["streams"][1]["codec_name"] == "aac"
+    assert output["streams"][0]["height"] == 1080
+    assert output["streams"][0]["width"] == 1920
+
+
+def test_video_zoom_in_float_parameter():
+    video = Video(test_files[0])
+    video.zoom_in(
+        zoom=1.1
+    )
+    output = video.metadata()
+    assert output["format_name"] == "mov,mp4,m4a,3gp,3g2,mj2"
+    assert int(float(output["duration"])) == 15
+    assert len(output["streams"]) == 2
+    assert output["streams"][0]["codec_name"] == "h264"
+    assert output["streams"][1]["codec_name"] == "aac"
+    assert output["streams"][0]["height"] == 1080
+    assert output["streams"][0]["width"] == 1920

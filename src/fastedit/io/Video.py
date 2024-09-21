@@ -1,4 +1,6 @@
+import math
 import ffmpeg
+from typing import Union
 from fastedit.core.Media import _Media
 from fastedit.core.utils import _guess_file_type
 
@@ -175,6 +177,108 @@ class Video(_Media):
             input.audio,
             self._second_temp_file,
             acodec="copy"
+        )
+        overwrite = ffmpeg.overwrite_output(
+            output
+        )
+        # Running command
+        ffmpeg.run(
+            stream_spec=overwrite,
+            quiet=True
+        )
+        # Saving result to main file
+        self._move_and_replace()
+
+    def _get_video_metadata(
+        self
+    ):
+        """
+        Gets only video's metadata.
+
+        Returns
+        -------
+        video_metadata: dict
+            Dictionary containing video's metadata.
+
+        Raises
+        ------
+        ValueError
+            If no video codec type is found.
+        """
+        metadata = self.metadata()
+        video_metadata = next(
+            (
+                dictionary
+                for dictionary in metadata["streams"]
+                if dictionary.get("codec_type") == "video"
+            ),
+            None
+        )
+        if video_metadata is None:
+            raise ValueError(
+                "No dictionary with 'codec_type' == 'video' found."
+            )
+        return video_metadata
+
+    def zoom_in(
+        self,
+        zoom: Union[int, float]
+    ):
+        """
+        Applies a progressive zoom effect until the end of the video.
+
+        Parameters
+        ----------
+        zoom: Union[int, float]
+            The zoom factor to achieve at the end of the video. Range is 0-10.
+
+        Raises
+        ------
+        TypeError
+            If zoom is not of type `int` or `float`.
+        ValueError
+            If zoom is not greater than or equal to 0.
+        """
+        # Verifying parameters types
+        if not isinstance(zoom, (int, float)):
+            raise TypeError(
+                f"Expected 'zoom' to be of type 'int' or 'float', but got "
+                f"'{type(zoom).__name__}' instead."
+            )
+        # Verifying parameter value
+        if zoom < 0:
+            raise ValueError(
+                f"Invalid value: 'zoom' must be greater than or equal to 0. "
+                f"Got zoom={zoom}."
+            )
+        # Getting video metadata
+        metadata = self._get_video_metadata()
+        fps = math.ceil(eval(metadata["r_frame_rate"]))
+        height = metadata["height"]
+        width = metadata["width"]
+        total_frames = int(metadata["nb_frames"])
+        # Computing zoom factor
+        zoom_factor = zoom/total_frames
+        # Input video
+        input = ffmpeg.input(
+            filename=self._main_temp_file
+        )
+
+        # Zooming in video
+        zoom = ffmpeg.zoompan(
+            input,
+            z=f"pzoom+{zoom_factor}",
+            x="iw/2-(iw/zoom/2)",
+            y="ih/2-(ih/zoom/2)",
+            d=1,
+            fps=fps,
+            s=f"{width}x{height}"
+        )
+        # Defining output and codec copying
+        output = ffmpeg.output(
+            zoom,
+            input.audio,
+            self._second_temp_file
         )
         overwrite = ffmpeg.overwrite_output(
             output
