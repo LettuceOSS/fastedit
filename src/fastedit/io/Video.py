@@ -295,10 +295,10 @@ class Video(_Media):
         self,
         x: int,
         y: int,
+        text: str,
         start: Union[int, float],
         end: Union[int, float],
-        text: str,
-        fontfile: str = "",
+        fontfile: str = None,
         fontsize: int = 24,
         fontcolor: str = "white",
         borderw: int = 5,
@@ -308,7 +308,93 @@ class Video(_Media):
         boxcolor: str = "black"
     ):
         """
+        Add text to the video at specific coordinates and duration.
+
+        Parameters
+        ----------
+        x: int
+            The x-coordinate for the text's position on the video.
+        y: int
+            The y-coordinate for the text's position on the video.
+        text: str
+            The content of the text to be rendered on the video.
+        start: int or float
+            The start time (in seconds) from when the text will appear on the 
+            video.
+        end: int or float
+            The end time (in seconds) when the text will disappear from the 
+            video.
+        fontfile: str, optional
+            The path to the font file to be used for the text.
+        fontsize: int, optional
+            The font size to be used for the text. Default is 24.
+        fontcolor: str, optional
+            The color of the text. Default is "white".
+        borderw: int, optional
+            The width of the border around the text. Default is 5.
+        bordercolor: str, optional
+            The color of the border around the text. Default is "black".
+        box: bool, optional
+            Whether to draw a box around the text using the background color. 
+            Default is False.
+        boxborderw: int, optional
+            The width of the border around the box. Default is 5.
+        boxcolor: str, optional
+            The color of the box around the text. Default is "black".
+
+        Raises
+        ------
+        TypeError
+            If `x` is not an int.
+            If `y` is not an int.
+            If `text` is not a str.
+            If `start` is not an int or float.
+            If `end` is not an int or float.
+        ValueError
+            If `end` is not strictly greater than `start`.
+            If `end` is strictly greater than media duration.
         """
+        # Verifying parameters types
+        if not isinstance(x, int):
+            raise TypeError(
+                f"Expected 'x' to be of type 'int', but got "
+                f"'{type(x).__name__}' instead."
+            )
+        if not isinstance(y, int):
+            raise TypeError(
+                f"Expected 'y' to be of type 'int', but got "
+                f"'{type(y).__name__}' instead."
+            )
+        if not isinstance(text, str):
+            raise TypeError(
+                f"Expected 'text' to be of type 'str', but got "
+                f"'{type(text).__name__}' instead."
+            )
+        if not isinstance(start, (int, float)):
+            raise TypeError(
+                f"Expected 'start' to be of type 'int' or 'float', but got "
+                f"'{type(start).__name__}' instead."
+            )
+        if not isinstance(end, (int, float)):
+            raise TypeError(
+                f"Expected 'end' to be of type 'int' or 'float', but got "
+                f"'{type(end).__name__}' instead."
+            )
+        # Verifying parameters consistency
+        if not end > start:
+            raise ValueError(
+                f"Invalid 'end' value: 'end' must be strictly greater than "
+                f"'start'. Got start={start} and end={end}."
+            )
+        metadata = self.metadata()
+        media_duration = float(metadata["duration"])
+        if not end <= media_duration:
+            raise ValueError(
+                f"Invalid 'end' value: 'end' must be less than or equal to "
+                f"the media duration. Got end={end}, but media duration is "
+                f"{media_duration}."
+            )
+        # Boolean to 0 | 1
         box_enabled = int(box == True)
         # Input video
         input = ffmpeg.input(
