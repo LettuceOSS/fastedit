@@ -199,7 +199,7 @@ class Video(_Media):
         -------
         video_metadata: dict
             Dictionary containing video's metadata.
-        
+
         Raises
         ------
         ValueError
@@ -277,6 +277,7 @@ class Video(_Media):
         # Defining output and codec copying
         output = ffmpeg.output(
             zoom,
+            input.audio,
             self._second_temp_file
         )
         overwrite = ffmpeg.overwrite_output(
