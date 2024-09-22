@@ -325,22 +325,28 @@ class Video(_Media):
             The end time (in seconds) when the text will disappear from the
             video.
         fontfile: str, optional
-            The path to the font file to be used for the text.
+            The path to the font file to be used for the text. Default is
+            None.
         fontsize: int, optional
             The font size to be used for the text. Default is 24.
         fontcolor: str, optional
-            The color of the text. Default is "white".
+            The color of the text. Default is "white". The set of possible
+            values at https://ffmpeg.org/ffmpeg-utils.html#color-syntax.
         borderw: int, optional
             The width of the border around the text. Default is 5.
         bordercolor: str, optional
-            The color of the border around the text. Default is "black".
+            The color of the border around the text. Default is "black". The
+            set of possible values at
+            https://ffmpeg.org/ffmpeg-utils.html#color-syntax.
         box: bool, optional
             Whether to draw a box around the text using the background color.
             Default is False.
         boxborderw: int, optional
             The width of the border around the box. Default is 5.
         boxcolor: str, optional
-            The color of the box around the text. Default is "black".
+            The color of the box around the text. Default is "black". The set
+            of possible values at
+            https://ffmpeg.org/ffmpeg-utils.html#color-syntax.
 
         Raises
         ------
