@@ -319,10 +319,10 @@ class Video(_Media):
         text: str
             The content of the text to be rendered on the video.
         start: int or float
-            The start time (in seconds) from when the text will appear on the 
+            The start time (in seconds) from when the text will appear on the
             video.
         end: int or float
-            The end time (in seconds) when the text will disappear from the 
+            The end time (in seconds) when the text will disappear from the
             video.
         fontfile: str, optional
             The path to the font file to be used for the text.
@@ -335,7 +335,7 @@ class Video(_Media):
         bordercolor: str, optional
             The color of the border around the text. Default is "black".
         box: bool, optional
-            Whether to draw a box around the text using the background color. 
+            Whether to draw a box around the text using the background color.
             Default is False.
         boxborderw: int, optional
             The width of the border around the box. Default is 5.
@@ -395,7 +395,7 @@ class Video(_Media):
                 f"{media_duration}."
             )
         # Boolean to 0 | 1
-        box_enabled = int(box == True)
+        box_enabled = int(box)
         # Input video
         input = ffmpeg.input(
             filename=self._main_temp_file
@@ -419,6 +419,7 @@ class Video(_Media):
         # Defining output and codec copying
         output = ffmpeg.output(
             zoom,
+            input.audio,
             self._second_temp_file
         )
         overwrite = ffmpeg.overwrite_output(

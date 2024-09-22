@@ -575,3 +575,172 @@ def test_video_zoom_in_without_ffmpeg(monkeypatch):
         "ffmpeg error (see stderr output for detail)"
     )
     assert str(error.value) == expected_error
+
+
+def test_video_text_x_not_int():
+    video = Video(test_files[0])
+    with pytest.raises(TypeError) as error:
+        video.text(
+            x="test",
+            y=540,
+            text="This is a text",
+            start=0,
+            end=10
+        )
+    expected_error = (
+        "Expected 'x' to be of type 'int', but got "
+        "'str' instead."
+    )
+    assert str(error.value) == expected_error
+
+
+def test_video_text_y_not_int():
+    video = Video(test_files[0])
+    with pytest.raises(TypeError) as error:
+        video.text(
+            x=960,
+            y="test",
+            text="This is a text",
+            start=0,
+            end=10
+        )
+    expected_error = (
+        "Expected 'y' to be of type 'int', but got "
+        "'str' instead."
+    )
+    assert str(error.value) == expected_error
+
+
+def test_video_text_text_not_str():
+    video = Video(test_files[0])
+    with pytest.raises(TypeError) as error:
+        video.text(
+            x=960,
+            y=540,
+            text=3,
+            start=0,
+            end=10
+        )
+    expected_error = (
+        "Expected 'text' to be of type 'str', but got "
+        "'int' instead."
+    )
+    assert str(error.value) == expected_error
+
+
+def test_video_text_start_not_int_or_float():
+    video = Video(test_files[0])
+    with pytest.raises(TypeError) as error:
+        video.text(
+            x=960,
+            y=540,
+            text="This is a text",
+            start="test",
+            end=10
+        )
+    expected_error = (
+        "Expected 'start' to be of type 'int' or 'float', but got "
+        "'str' instead."
+    )
+    assert str(error.value) == expected_error
+
+
+def test_video_text_end_not_int_or_float():
+    video = Video(test_files[0])
+    with pytest.raises(TypeError) as error:
+        video.text(
+            x=960,
+            y=540,
+            text="This is a text",
+            start=0,
+            end="test"
+        )
+    expected_error = (
+        "Expected 'end' to be of type 'int' or 'float', but got "
+        "'str' instead."
+    )
+    assert str(error.value) == expected_error
+
+
+def test_video_text_without_ffmpeg(monkeypatch):
+    # Mocking FFmpeg not installed
+    def mock_ffmpeg(*args, **kwargs):
+        raise ffmpeg.Error(
+            "ffmpeg",
+            "stdout",
+            "stderr"
+        )
+
+    # Replace ffmpeg.run by mocking
+    monkeypatch.setattr(ffmpeg, "run", mock_ffmpeg)
+
+    # Testing
+    video = Video(test_files[0])
+    with pytest.raises(ffmpeg.Error) as error:
+        video.text(
+            x=960,
+            y=540,
+            text="This is a text",
+            start=0,
+            end=10
+        )
+    expected_error = (
+        "ffmpeg error (see stderr output for detail)"
+    )
+    assert str(error.value) == expected_error
+
+
+def test_video_text_start_greater_than_end():
+    video = Video(test_files[0])
+    with pytest.raises(ValueError) as error:
+        video.text(
+            x=960,
+            y=540,
+            text="This is a text",
+            start=10,
+            end=0
+        )
+    expected_error = (
+        "Invalid 'end' value: 'end' must be strictly greater than "
+        "'start'. Got start=10 and end=0."
+    )
+    assert str(error.value) == expected_error
+
+
+def test_video_text_start_and_end_greater_than_video_duration():
+    video = Video(test_files[0])
+    metadata = video.metadata()
+    video_duration = float(metadata["duration"])
+    with pytest.raises(ValueError) as error:
+        video.text(
+            x=960,
+            y=540,
+            text="This is a text",
+            start=0,
+            end=20
+        )
+    expected_error = (
+        "Invalid 'end' value: 'end' must be less than or equal to "
+        "the media duration. Got end=20, but media duration is "
+        f"{video_duration}."
+    )
+    assert str(error.value) == expected_error
+
+
+def test_video_text_working():
+    video = Video(test_files[0])
+    video.text(
+        x=960,
+        y=540,
+        text="This is a text",
+        start=0,
+        end=10
+    )
+    output = video.metadata()
+    assert output["format_name"] == "mov,mp4,m4a,3gp,3g2,mj2"
+    assert int(float(output["duration"])) == 15
+    assert len(output["streams"]) == 2
+    assert output["streams"][0]["codec_name"] == "h264"
+    assert output["streams"][1]["codec_name"] == "aac"
+    assert output["streams"][0]["height"] == 1080
+    assert output["streams"][0]["width"] == 1920
