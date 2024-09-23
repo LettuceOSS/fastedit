@@ -445,6 +445,32 @@ class Video(_Media):
         audio: Audio,
         strategy: str
     ):
+        """
+        Adds an audio track to the video using a specified strategy.
+
+        Parameters
+        ----------
+        audio: Audio
+            The new audio to be added to the video. This should be an instance
+            of the `Audio` class.
+        strategy: str
+            The strategy for handling the audio merge. Must be one of the
+            following:
+            - "replace": Replaces the existing audio track with the new one.
+            - "add": Adds a new audio track to the video.
+            - "mix": Mixes the new audio track with the existing one.
+                
+        Raises
+        ------
+        TypeError
+            If `audio` is not an instance of `Audio`.
+            If `strategy` is not a string.
+        ValueError
+            If `strategy` is not one of the valid options: "replace", "add",
+            or "mix".
+        NameError
+            If the specified strategy is not found in the strategy mapping.
+        """
         # Verifying parameters types
         if not isinstance(audio, Audio):
             raise TypeError(
