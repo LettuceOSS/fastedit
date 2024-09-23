@@ -2,6 +2,7 @@ import math
 import ffmpeg
 from typing import Union
 from fastedit.core.Media import _Media
+from fastedit.io.Audio import Audio
 from fastedit.core.utils import _guess_file_type
 
 
@@ -428,6 +429,65 @@ class Video(_Media):
             input.audio,
             self._second_temp_file
         )
+        overwrite = ffmpeg.overwrite_output(
+            output
+        )
+        # Running command
+        ffmpeg.run(
+            stream_spec=overwrite,
+            quiet=True
+        )
+        # Saving result to main file
+        self._move_and_replace()
+
+    def add_audio(
+        self,
+        audio: Audio,
+        strategy: str
+    ):
+        # Verifying parameters types
+        if not isinstance(audio, Audio):
+            raise TypeError(
+                f"Expected 'audio' to be of type 'Audio', but got "
+                f"'{type(audio).__name__}' instead."
+            )
+        if not isinstance(strategy, str):
+            raise TypeError(
+                f"Expected 'strategy' to be of type 'str', but got "
+                f"'{type(strategy).__name__}' instead."
+            )
+        # Verifying parameters consistency
+        valid_strategies = ["replace", "add", "mix"]
+        if strategy not in valid_strategies:
+            raise ValueError(
+                f"Invalid strategy '{strategy}'. Expected one of: "
+                f"{', '.join(valid_strategies)}"
+            )
+        # Input video and audio
+        input_video = ffmpeg.input(
+            filename=self._main_temp_file
+        )
+        input_audio = ffmpeg.input(
+            filename=audio._main_temp_file
+        )
+        if strategy == valid_strategies[0]:
+            # Defining output and codec copying
+            output = ffmpeg.output(
+                input_video.video,
+                input_audio.audio,
+                self._second_temp_file,
+                shortest=None,
+                vcodec="copy"
+            )
+        elif strategy == valid_strategies[1]:
+            pass
+        elif strategy == valid_strategies[2]:
+            pass
+        else:
+            raise NameError(
+                "Strategy not found"
+            )
+        # Overwrite output file
         overwrite = ffmpeg.overwrite_output(
             output
         )
