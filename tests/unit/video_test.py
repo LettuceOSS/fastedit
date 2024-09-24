@@ -824,3 +824,20 @@ def test_video_add_audio_add_strategy():
     assert output["streams"][1]["codec_name"] == "aac"
     assert output["streams"][0]["height"] == 1080
     assert output["streams"][0]["width"] == 1920
+
+
+def test_video_add_audio_mix_strategy():
+    video = Video(test_files[0])
+    audio = Audio(test_files[1])
+    video.add_audio(
+        audio=audio,
+        strategy="mix"
+    )
+    output = video.metadata()
+    assert output["format_name"] == "mov,mp4,m4a,3gp,3g2,mj2"
+    assert int(float(output["duration"])) == 15
+    assert len(output["streams"]) == 2
+    assert output["streams"][1]["codec_name"] == "h264"
+    assert output["streams"][0]["codec_name"] == "aac"
+    assert output["streams"][1]["height"] == 1080
+    assert output["streams"][1]["width"] == 1920

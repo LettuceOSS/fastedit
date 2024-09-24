@@ -516,7 +516,26 @@ class Video(_Media):
             )
         # Mixing audio
         elif strategy == valid_strategies[2]:
-            pass
+            # Mixing audios
+            mixed_audio = ffmpeg.filter(
+                [
+                    input_video.audio,
+                    input_audio.audio
+                ],
+                filter_name="amix",
+                duration="shortest"
+            )
+            # Merging video and mixed audios
+            merged = ffmpeg.concat(
+                input_video,
+                mixed_audio,
+                v=1,
+                a=1
+            )
+            output = ffmpeg.output(
+                merged,
+                self._second_temp_file
+            )
         else:
             raise NameError(
                 "Strategy not found"
