@@ -459,7 +459,7 @@ class Video(_Media):
             - "replace": Replaces the existing audio track with the new one.
             - "add": Adds a new audio track to the video.
             - "mix": Mixes the new audio track with the existing one.
-                
+
         Raises
         ------
         TypeError
@@ -487,7 +487,7 @@ class Video(_Media):
         if strategy not in valid_strategies:
             raise ValueError(
                 f"Invalid strategy '{strategy}'. Expected one of: "
-                f"{', '.join(valid_strategies)}"
+                f"{', '.join(valid_strategies)}."
             )
         # Input video and audio
         input_video = ffmpeg.input(
@@ -496,8 +496,8 @@ class Video(_Media):
         input_audio = ffmpeg.input(
             filename=audio._main_temp_file
         )
+        # Replacing audio
         if strategy == valid_strategies[0]:
-            # Defining output and codec copying
             output = ffmpeg.output(
                 input_video.video,
                 input_audio.audio,
@@ -505,8 +505,16 @@ class Video(_Media):
                 shortest=None,
                 vcodec="copy"
             )
+        # Adding audio
         elif strategy == valid_strategies[1]:
-            pass
+            output = ffmpeg.output(
+                input_video,
+                input_audio.audio,
+                self._second_temp_file,
+                shortest=None,
+                vcodec="copy"
+            )
+        # Mixing audio
         elif strategy == valid_strategies[2]:
             pass
         else:
