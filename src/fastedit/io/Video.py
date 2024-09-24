@@ -2,6 +2,7 @@ import math
 import ffmpeg
 from typing import Union
 from fastedit.core.Media import _Media
+from fastedit.io.Audio import Audio
 from fastedit.core.utils import _guess_file_type
 
 
@@ -428,6 +429,118 @@ class Video(_Media):
             input.audio,
             self._second_temp_file
         )
+        overwrite = ffmpeg.overwrite_output(
+            output
+        )
+        # Running command
+        ffmpeg.run(
+            stream_spec=overwrite,
+            quiet=True
+        )
+        # Saving result to main file
+        self._move_and_replace()
+
+    def add_audio(
+        self,
+        audio: Audio,
+        strategy: str
+    ):
+        """
+        Adds an audio track to the video using a specified strategy.
+
+        Parameters
+        ----------
+        audio: Audio
+            The new audio to be added to the video. This should be an instance
+            of the `Audio` class.
+        strategy: str
+            The strategy for handling the audio merge. Must be one of the
+            following:
+            - "replace": Replaces the existing audio track with the new one.
+            - "add": Adds a new audio track to the video.
+            - "mix": Mixes the new audio track with the existing one.
+
+        Raises
+        ------
+        TypeError
+            If `audio` is not an instance of `Audio`.
+            If `strategy` is not a string.
+        ValueError
+            If `strategy` is not one of the valid options: "replace", "add",
+            or "mix".
+        NameError
+            If the specified strategy is not found in the strategy mapping.
+        """
+        # Verifying parameters types
+        if not isinstance(audio, Audio):
+            raise TypeError(
+                f"Expected 'audio' to be of type 'Audio', but got "
+                f"'{type(audio).__name__}' instead."
+            )
+        if not isinstance(strategy, str):
+            raise TypeError(
+                f"Expected 'strategy' to be of type 'str', but got "
+                f"'{type(strategy).__name__}' instead."
+            )
+        # Verifying parameters consistency
+        valid_strategies = ["replace", "add", "mix"]
+        if strategy not in valid_strategies:
+            raise ValueError(
+                f"Invalid strategy '{strategy}'. Expected one of: "
+                f"{', '.join(valid_strategies)}."
+            )
+        # Input video and audio
+        input_video = ffmpeg.input(
+            filename=self._main_temp_file
+        )
+        input_audio = ffmpeg.input(
+            filename=audio._main_temp_file
+        )
+        # Replacing audio
+        if strategy == valid_strategies[0]:
+            output = ffmpeg.output(
+                input_video.video,
+                input_audio.audio,
+                self._second_temp_file,
+                shortest=None,
+                vcodec="copy"
+            )
+        # Adding audio
+        elif strategy == valid_strategies[1]:
+            output = ffmpeg.output(
+                input_video,
+                input_audio.audio,
+                self._second_temp_file,
+                shortest=None,
+                vcodec="copy"
+            )
+        # Mixing audio
+        elif strategy == valid_strategies[2]:
+            # Mixing audios
+            mixed_audio = ffmpeg.filter(
+                [
+                    input_video.audio,
+                    input_audio.audio
+                ],
+                filter_name="amix",
+                duration="shortest"
+            )
+            # Merging video and mixed audios
+            merged = ffmpeg.concat(
+                input_video,
+                mixed_audio,
+                v=1,
+                a=1
+            )
+            output = ffmpeg.output(
+                merged,
+                self._second_temp_file
+            )
+        else:
+            raise NameError(
+                "Strategy not found"
+            )
+        # Overwrite output file
         overwrite = ffmpeg.overwrite_output(
             output
         )

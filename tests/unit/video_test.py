@@ -1,4 +1,5 @@
 from fastedit.io.Video import Video
+from fastedit.io.Audio import Audio
 import ffmpeg
 import pytest
 
@@ -744,3 +745,99 @@ def test_video_text_working():
     assert output["streams"][1]["codec_name"] == "aac"
     assert output["streams"][0]["height"] == 1080
     assert output["streams"][0]["width"] == 1920
+
+
+def test_video_add_audio_wrong_audio_type_parameter():
+    video = Video(test_files[0])
+    audio = "test"
+    with pytest.raises(TypeError) as error:
+        video.add_audio(
+            audio=audio,
+            strategy="replace"
+        )
+    expected_error = (
+        "Expected 'audio' to be of type 'Audio', but got "
+        "'str' instead."
+    )
+    assert str(error.value) == expected_error
+
+
+def test_video_add_audio_wrong_strategy_type_parameter():
+    video = Video(test_files[0])
+    audio = Audio(test_files[1])
+    with pytest.raises(TypeError) as error:
+        video.add_audio(
+            audio=audio,
+            strategy=1
+        )
+    expected_error = (
+        "Expected 'strategy' to be of type 'str', but got "
+        "'int' instead."
+    )
+    assert str(error.value) == expected_error
+
+
+def test_video_add_audio_strategy_not_valid():
+    video = Video(test_files[0])
+    audio = Audio(test_files[1])
+    with pytest.raises(ValueError) as error:
+        video.add_audio(
+            audio=audio,
+            strategy="strat1"
+        )
+    expected_error = (
+        "Invalid strategy 'strat1'. Expected one of: "
+        "replace, add, mix."
+    )
+    assert str(error.value) == expected_error
+
+
+def test_video_add_audio_replace_strategy():
+    video = Video(test_files[0])
+    audio = Audio(test_files[1])
+    video.add_audio(
+        audio=audio,
+        strategy="replace"
+    )
+    output = video.metadata()
+    assert output["format_name"] == "mov,mp4,m4a,3gp,3g2,mj2"
+    assert int(float(output["duration"])) == 15
+    assert len(output["streams"]) == 2
+    assert output["streams"][0]["codec_name"] == "h264"
+    assert output["streams"][1]["codec_name"] == "aac"
+    assert output["streams"][0]["height"] == 1080
+    assert output["streams"][0]["width"] == 1920
+
+
+def test_video_add_audio_add_strategy():
+    video = Video(test_files[0])
+    audio = Audio(test_files[1])
+    video.add_audio(
+        audio=audio,
+        strategy="add"
+    )
+    output = video.metadata()
+    assert output["format_name"] == "mov,mp4,m4a,3gp,3g2,mj2"
+    assert int(float(output["duration"])) == 15
+    assert len(output["streams"]) == 3
+    assert output["streams"][0]["codec_name"] == "h264"
+    assert output["streams"][1]["codec_name"] == "aac"
+    assert output["streams"][0]["height"] == 1080
+    assert output["streams"][0]["width"] == 1920
+
+
+def test_video_add_audio_mix_strategy():
+    video = Video(test_files[0])
+    audio = Audio(test_files[1])
+    video.add_audio(
+        audio=audio,
+        strategy="mix"
+    )
+    output = video.metadata()
+    assert output["format_name"] == "mov,mp4,m4a,3gp,3g2,mj2"
+    assert int(float(output["duration"])) == 15
+    assert len(output["streams"]) == 2
+    assert output["streams"][1]["codec_name"] == "h264"
+    assert output["streams"][0]["codec_name"] == "aac"
+    assert output["streams"][1]["height"] == 1080
+    assert output["streams"][1]["width"] == 1920
