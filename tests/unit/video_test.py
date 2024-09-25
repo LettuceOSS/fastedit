@@ -843,6 +843,84 @@ def test_video_add_audio_mix_strategy():
     assert output["streams"][1]["width"] == 1920
 
 
+def test_video_add_audio_mix_strategy_without_ffmpeg(monkeypatch):
+    # Mocking FFmpeg not installed
+    def mock_ffmpeg(*args, **kwargs):
+        raise ffmpeg.Error(
+            "ffmpeg",
+            "stdout",
+            "stderr"
+        )
+
+    # Replace ffmpeg.run by mocking
+    monkeypatch.setattr(ffmpeg, "run", mock_ffmpeg)
+
+    # Testing
+    video = Video(test_files[0])
+    audio = Audio(test_files[1])
+    with pytest.raises(ffmpeg.Error) as error:
+        video.add_audio(
+            audio=audio,
+            strategy="mix"
+        )
+    expected_error = (
+        "ffmpeg error (see stderr output for detail)"
+    )
+    assert str(error.value) == expected_error
+
+
+def test_video_add_audio_replace_strategy_without_ffmpeg(monkeypatch):
+    # Mocking FFmpeg not installed
+    def mock_ffmpeg(*args, **kwargs):
+        raise ffmpeg.Error(
+            "ffmpeg",
+            "stdout",
+            "stderr"
+        )
+
+    # Replace ffmpeg.run by mocking
+    monkeypatch.setattr(ffmpeg, "run", mock_ffmpeg)
+
+    # Testing
+    video = Video(test_files[0])
+    audio = Audio(test_files[1])
+    with pytest.raises(ffmpeg.Error) as error:
+        video.add_audio(
+            audio=audio,
+            strategy="replace"
+        )
+    expected_error = (
+        "ffmpeg error (see stderr output for detail)"
+    )
+    assert str(error.value) == expected_error
+
+
+def test_video_add_audio_add_strategy_without_ffmpeg(monkeypatch):
+    # Mocking FFmpeg not installed
+    def mock_ffmpeg(*args, **kwargs):
+        raise ffmpeg.Error(
+            "ffmpeg",
+            "stdout",
+            "stderr"
+        )
+
+    # Replace ffmpeg.run by mocking
+    monkeypatch.setattr(ffmpeg, "run", mock_ffmpeg)
+
+    # Testing
+    video = Video(test_files[0])
+    audio = Audio(test_files[1])
+    with pytest.raises(ffmpeg.Error) as error:
+        video.add_audio(
+            audio=audio,
+            strategy="add"
+        )
+    expected_error = (
+        "ffmpeg error (see stderr output for detail)"
+    )
+    assert str(error.value) == expected_error
+
+
 def test_video_remove_audio():
     video = Video(test_files[0])
     video.remove_audio()
