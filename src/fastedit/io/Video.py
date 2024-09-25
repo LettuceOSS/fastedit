@@ -551,3 +551,31 @@ class Video(_Media):
         )
         # Saving result to main file
         self._move_and_replace()
+
+    def remove_audio(
+        self
+    ):
+        """
+        Removes audio tracks from the video.
+        """
+        # Input video
+        input = ffmpeg.input(
+            filename=self._main_temp_file
+        )
+        # Removes audio tracks
+        output = ffmpeg.output(
+            input.video,
+            self._second_temp_file,
+            vcodec="copy"
+        )
+        # Overwrite output file
+        overwrite = ffmpeg.overwrite_output(
+            output
+        )
+        # Running command
+        ffmpeg.run(
+            stream_spec=overwrite,
+            quiet=True
+        )
+        # Saving result to main file
+        self._move_and_replace()

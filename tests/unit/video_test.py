@@ -841,3 +841,37 @@ def test_video_add_audio_mix_strategy():
     assert output["streams"][0]["codec_name"] == "aac"
     assert output["streams"][1]["height"] == 1080
     assert output["streams"][1]["width"] == 1920
+
+
+def test_video_remove_audio():
+    video = Video(test_files[0])
+    video.remove_audio()
+    output = video.metadata()
+    assert output["format_name"] == "mov,mp4,m4a,3gp,3g2,mj2"
+    assert int(float(output["duration"])) == 15
+    assert len(output["streams"]) == 1
+    assert output["streams"][0]["codec_name"] == "h264"
+    assert output["streams"][0]["height"] == 1080
+    assert output["streams"][0]["width"] == 1920
+
+
+def test_video_remove_audio_without_ffmpeg(monkeypatch):
+    # Mocking FFmpeg not installed
+    def mock_ffmpeg(*args, **kwargs):
+        raise ffmpeg.Error(
+            "ffmpeg",
+            "stdout",
+            "stderr"
+        )
+
+    # Replace ffmpeg.run by mocking
+    monkeypatch.setattr(ffmpeg, "run", mock_ffmpeg)
+
+    # Testing
+    video = Video(test_files[0])
+    with pytest.raises(ffmpeg.Error) as error:
+        video.remove_audio()
+    expected_error = (
+        "ffmpeg error (see stderr output for detail)"
+    )
+    assert str(error.value) == expected_error
