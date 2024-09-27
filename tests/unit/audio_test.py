@@ -1,6 +1,7 @@
 from fastedit.io.Audio import Audio
 import ffmpeg
 import pytest
+import os
 
 
 test_files = [
@@ -206,5 +207,41 @@ def test_audio_loop_without_ffmpeg(monkeypatch):
         )
     expected_error = (
         "ffmpeg error (see stderr output for detail)"
+    )
+    assert str(error.value) == expected_error
+
+
+def test_audio_save_valid_path():
+    audio = Audio(test_files[0])
+    save_path = ".venv/test.mp3"
+    audio.save(
+        path=save_path
+    )
+    assert os.path.exists(save_path)
+
+
+def test_audio_save_invalid_path():
+    audio = Audio(test_files[0])
+    save_path = "path/to/save/file.mp3"
+    with pytest.raises(ValueError) as error:
+        audio.save(
+            path=save_path
+        )
+    expected_error = (
+        f"The specified path '{save_path}' is invalid or does not exist."
+    )
+    assert str(error.value) == expected_error
+
+
+def test_audio_save_wrong_path_type():
+    audio = Audio(test_files[0])
+    save_path = 1
+    with pytest.raises(TypeError) as error:
+        audio.save(
+            path=save_path
+        )
+    expected_error = (
+        "Expected 'path' to be of type 'str', but got "
+        "'int' instead."
     )
     assert str(error.value) == expected_error

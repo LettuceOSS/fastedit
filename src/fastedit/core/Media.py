@@ -288,3 +288,45 @@ class _Media:
         )
         # Saving result to main file
         self._move_and_replace()
+
+    def save(
+        self,
+        path: str
+    ):
+        """
+        Saves the media file to the specified path in the filesystem.
+
+        Parameters
+        ----------
+        path : str
+            The destination file path where the media file will be saved.
+
+        Raises
+        ------
+        TypeError
+            If `path` is not of type `str`.
+        ValueError
+            If the specified `path` is invalid or does not exist.
+        """
+        # Verifying path's type
+        if not isinstance(path, str):
+            raise TypeError(
+                f"Expected 'path' to be of type 'str', but got "
+                f"'{type(path).__name__}' instead."
+            )
+        # Verifying if path exists
+        media_abs_path = os.path.abspath(
+            path=path
+        )
+        media_dir_path = os.path.dirname(
+            p=media_abs_path
+        )
+        if not os.path.exists(media_dir_path):
+            raise ValueError(
+                f"The specified path '{path}' is invalid or does not exist."
+            )
+        # Copying file to filesystem
+        shutil.copy(
+            self._main_temp_file,
+            path
+        )
