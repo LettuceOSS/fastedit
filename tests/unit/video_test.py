@@ -2,6 +2,7 @@ from fastedit.io.Video import Video
 from fastedit.io.Audio import Audio
 import ffmpeg
 import pytest
+import os
 
 
 test_files = [
@@ -951,5 +952,41 @@ def test_video_remove_audio_without_ffmpeg(monkeypatch):
         video.remove_audio()
     expected_error = (
         "ffmpeg error (see stderr output for detail)"
+    )
+    assert str(error.value) == expected_error
+
+
+def test_video_save_valid_path():
+    video = Video(test_files[0])
+    save_path = "test_fastedit.mp4"
+    video.save(
+        path=save_path
+    )
+    assert os.path.exists(save_path)
+
+
+def test_video_save_invalid_path():
+    video = Video(test_files[0])
+    save_path = "path/to/save/file.mp4"
+    with pytest.raises(ValueError) as error:
+        video.save(
+            path=save_path
+        )
+    expected_error = (
+        f"The specified path '{save_path}' is invalid or does not exist."
+    )
+    assert str(error.value) == expected_error
+
+
+def test_video_save_wrong_path_type():
+    video = Video(test_files[0])
+    save_path = 1
+    with pytest.raises(TypeError) as error:
+        video.save(
+            path=save_path
+        )
+    expected_error = (
+        "Expected 'path' to be of type 'str', but got "
+        "'int' instead."
     )
     assert str(error.value) == expected_error
