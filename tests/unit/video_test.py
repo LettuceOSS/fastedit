@@ -958,7 +958,7 @@ def test_video_remove_audio_without_ffmpeg(monkeypatch):
 
 def test_video_save_valid_path():
     video = Video(test_files[0])
-    save_path = ".venv/test.mp4"
+    save_path = "test_fastedit.mp4"
     video.save(
         path=save_path
     )

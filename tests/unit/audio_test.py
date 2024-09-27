@@ -213,7 +213,7 @@ def test_audio_loop_without_ffmpeg(monkeypatch):
 
 def test_audio_save_valid_path():
     audio = Audio(test_files[0])
-    save_path = ".venv/test.mp3"
+    save_path = "test_fastedit.mp3"
     audio.save(
         path=save_path
     )
