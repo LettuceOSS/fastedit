@@ -1,7 +1,7 @@
 import os
 import shutil
 from tempfile import TemporaryDirectory
-from fastedit.core.utils import _guess_file_type
+
 
 class _Base:
     def __init__(

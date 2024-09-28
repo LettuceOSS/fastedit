@@ -19,7 +19,8 @@ def test_subtitles_with_invalid_file():
     with pytest.raises(ValueError) as error:
         Subtitles(test_files[1])
     expected_error = (
-        f"The specified path '{test_files[1]}' does not exist or is not a file."
+        f"The specified path '{test_files[1]}' does not exist or is not "
+        "a file."
     )
     assert str(error.value) == expected_error
 

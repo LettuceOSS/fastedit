@@ -1,4 +1,5 @@
 from mimetypes import guess_type
+import mimetypes
 from os.path import isfile
 
 
@@ -21,6 +22,10 @@ def _guess_file_type(
     ValueError
         If the specified path is not a file.
     """
+    mimetypes.add_type(
+        type="subtitles/srt",
+        ext=".srt"
+    )
     # Verifying path's type
     if not isinstance(path, str):
         raise TypeError(
@@ -41,7 +46,7 @@ def _guess_file_type(
         return "image"
     elif mime_type.startswith("audio"):
         return "audio"
-    elif mime_type == "application/x-subrip":
+    elif mime_type.startswith("subtitles"):
         return "subtitles"
     else:
         return None
