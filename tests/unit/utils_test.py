@@ -9,7 +9,7 @@ test_files = [
     "./media/test_audio.mp3",
     "./media/test_image.jpeg",
     "./media/test_subtitles.srt",
-    "./media/test_subtitles.ass"
+    "./media/test_pdf.pdf"
 ]
 
 
