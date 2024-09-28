@@ -22,9 +22,14 @@ def _guess_file_type(
     ValueError
         If the specified path is not a file.
     """
+    # Adding custom mimetypes
     mimetypes.add_type(
         type="subtitles/srt",
         ext=".srt"
+    )
+    mimetypes.add_type(
+        type="subtitles/ass",
+        ext=".ass"
     )
     # Verifying path's type
     if not isinstance(path, str):
