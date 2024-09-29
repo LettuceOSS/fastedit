@@ -3,6 +3,7 @@ import ffmpeg
 from typing import Union
 from fastedit.core.Media import _Media
 from fastedit.io.Audio import Audio
+from fastedit.io.Subtitles import Subtitles
 from fastedit.core.utils import _guess_file_type
 
 
@@ -568,6 +569,84 @@ class Video(_Media):
             self._second_temp_file,
             vcodec="copy"
         )
+        # Overwrite output file
+        overwrite = ffmpeg.overwrite_output(
+            output
+        )
+        # Running command
+        ffmpeg.run(
+            stream_spec=overwrite,
+            quiet=True
+        )
+        # Saving result to main file
+        self._move_and_replace()
+
+    def add_subtitles(
+        self,
+        subtitles: Subtitles,
+        strategy: str
+    ):
+        """
+        Adds subtitles to the video using a specified strategy.
+
+        Parameters
+        ----------
+        subtitles: Subtitles
+            The subtitles to be added to the video. This should be an instance
+            of the `Subtitles` class.
+        strategy: str
+            The strategy for handling the subtitles adding. Must be one of the
+            following:
+            - "hard": Subtitles are hard coded to the video. The subtitles are
+            burned into the video and cannot be removed.
+            - "soft": Subtitles are not burned into the video. The subtitles
+            can be enabled and disabled during the video playback.
+
+        Raises
+        ------
+        TypeError
+            If `subtitles` is not an instance of `Subtitles`.
+            If `strategy` is not a string.
+        ValueError
+            If `strategy` is not one of the valid options: "hard" or "soft".
+        NameError
+            If the specified strategy is not found in the strategy mapping.
+        """
+        # Verifying parameters types
+        if not isinstance(subtitles, Subtitles):
+            raise TypeError(
+                f"Expected 'subtitles' to be of type 'Subtitles', but got "
+                f"'{type(subtitles).__name__}' instead."
+            )
+        if not isinstance(strategy, str):
+            raise TypeError(
+                f"Expected 'strategy' to be of type 'str', but got "
+                f"'{type(strategy).__name__}' instead."
+            )
+        # Verifying parameters consistency
+        valid_strategies = ["hard", "soft"]
+        if strategy not in valid_strategies:
+            raise ValueError(
+                f"Invalid strategy '{strategy}'. Expected one of: "
+                f"{', '.join(valid_strategies)}."
+            )
+        # Input video
+        input = ffmpeg.input(
+            filename=self._main_temp_file
+        )
+        if strategy == valid_strategies[0]:
+            # Defining output and codec copying
+            output = ffmpeg.output(
+                input,
+                self._second_temp_file,
+                vf=f"ass={subtitles._main_temp_file}"
+            )
+        elif strategy == valid_strategies[1]:
+            pass
+        else:
+            raise NameError(
+                "Strategy not found"
+            )
         # Overwrite output file
         overwrite = ffmpeg.overwrite_output(
             output

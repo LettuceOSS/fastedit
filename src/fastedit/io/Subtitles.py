@@ -1,5 +1,7 @@
 from fastedit.core.Base import _Base
 from fastedit.core.utils import _guess_file_type
+import ffmpeg
+import os
 
 
 class Subtitles(_Base):
@@ -32,3 +34,41 @@ class Subtitles(_Base):
             )
         # Initialize instance
         super().__init__(path)
+        self._change_to_ass()
+
+    def _change_to_ass(
+        self
+    ):
+        """
+        Change subtitles format to ASS.
+        """
+        extension = ".ass"
+        # Changing second temp file format
+        self._second_temp_file = os.path.join(
+            self._temp_dir.name,
+            "second" + extension
+        )
+        # Changing subtitles format
+        input = ffmpeg.input(
+            filename=self._main_temp_file
+        )
+        output = ffmpeg.output(
+            input,
+            self._second_temp_file
+        )
+        # Overwrite output file
+        overwrite = ffmpeg.overwrite_output(
+            output
+        )
+        # Running command
+        ffmpeg.run(
+            stream_spec=overwrite,
+            quiet=True
+        )
+        # Changing main temp file format
+        self._main_temp_file = os.path.join(
+            self._temp_dir.name,
+            "main" + extension
+        )
+        # Saving result to main file
+        self._move_and_replace()
