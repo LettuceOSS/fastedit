@@ -584,7 +584,9 @@ class Video(_Media):
     def add_subtitles(
         self,
         subtitles: Subtitles,
-        strategy: str
+        strategy: str,
+        position: str = "bottom-center",
+        scodec: str = "mov_text"
     ):
         """
         Adds subtitles to the video using a specified strategy.
@@ -601,14 +603,25 @@ class Video(_Media):
             burned into the video and cannot be removed.
             - "soft": Subtitles are not burned into the video. The subtitles
             can be enabled and disabled during the video playback.
+        position: str, optional
+            The position where subtitles should appear on the video. Defaults
+            to 'bottom-center'. Valid options: ["top-left", "top-center",
+            "top-right", "middle-left", "middle-center", "middle-right",
+            "bottom-left", "bottom-center", "bottom-right"].
+        scodec: str, optional
+            The codec to use for soft subtitles. Defaults to 'mov_text'.
 
         Raises
         ------
         TypeError
             If `subtitles` is not an instance of `Subtitles`.
-            If `strategy` is not a string.
+            If `strategy`, `position`, or `scodec` are not strings.
         ValueError
             If `strategy` is not one of the valid options: "hard" or "soft".
+            If `position` is not a valid option.
+        ffmpeg.Error
+            If the subtitle codec `scodec` is not recognized or not available
+            for the video format.
         NameError
             If the specified strategy is not found in the strategy mapping.
         """
@@ -623,6 +636,16 @@ class Video(_Media):
                 f"Expected 'strategy' to be of type 'str', but got "
                 f"'{type(strategy).__name__}' instead."
             )
+        if not isinstance(position, str):
+            raise TypeError(
+                f"Expected 'position' to be of type 'str', but got "
+                f"'{type(position).__name__}' instead."
+            )
+        if not isinstance(scodec, str):
+            raise TypeError(
+                f"Expected 'scodec' to be of type 'str', but got "
+                f"'{type(scodec).__name__}' instead."
+            )
         # Verifying parameters consistency
         valid_strategies = ["hard", "soft"]
         if strategy not in valid_strategies:
@@ -630,19 +653,58 @@ class Video(_Media):
                 f"Invalid strategy '{strategy}'. Expected one of: "
                 f"{', '.join(valid_strategies)}."
             )
+        valid_positions = [
+            "top-left",
+            "top-center",
+            "top-right",
+            "middle-left",
+            "middle-center",
+            "middle-right",
+            "bottom-left",
+            "bottom-center",
+            "bottom-right"
+        ]
+        if position not in valid_positions:
+            raise ValueError(
+                f"Invalid position '{position}'. Expected one of: "
+                f"{', '.join(valid_positions)}."
+            )
         # Input video
         input = ffmpeg.input(
             filename=self._main_temp_file
         )
         if strategy == valid_strategies[0]:
-            # Defining output and codec copying
+            # Position mapping
+            position_mapping = {
+                valid_positions[0]: 5,
+                valid_positions[1]: 6,
+                valid_positions[2]: 7,
+                valid_positions[3]: 9,
+                valid_positions[4]: 10,
+                valid_positions[5]: 11,
+                valid_positions[6]: 1,
+                valid_positions[7]: 2,
+                valid_positions[8]: 3
+            }
+            # Defining output
             output = ffmpeg.output(
                 input,
                 self._second_temp_file,
-                vf=f"ass={subtitles._main_temp_file}"
+                vf=f"subtitles={subtitles._main_temp_file}:force_style='Alignment={position_mapping[position]}'"
             )
         elif strategy == valid_strategies[1]:
-            pass
+            # Defining output
+            input_subtitles = ffmpeg.input(
+                filename=subtitles._main_temp_file
+            )
+            output = ffmpeg.output(
+                input,
+                input_subtitles,
+                self._second_temp_file,
+                vcodec="copy",
+                acodec="copy",
+                scodec=scodec
+            )
         else:
             raise NameError(
                 "Strategy not found"

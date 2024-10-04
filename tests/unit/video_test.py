@@ -1,5 +1,6 @@
 from fastedit.io.Video import Video
 from fastedit.io.Audio import Audio
+from fastedit.io.Subtitles import Subtitles
 import ffmpeg
 import pytest
 import os
@@ -7,7 +8,9 @@ import os
 
 test_files = [
     "./media/test_video_with_audio.mp4",
-    "./media/test_audio.mp3"
+    "./media/test_audio.mp3",
+    "./media/test_subtitles.ass",
+    "./media/test_subtitles.srt"
 ]
 
 
@@ -988,5 +991,194 @@ def test_video_save_wrong_path_type():
     expected_error = (
         "Expected 'path' to be of type 'str', but got "
         "'int' instead."
+    )
+    assert str(error.value) == expected_error
+
+
+def test_video_add_subtitles_wrong_type_subtitles():
+    video = Video(test_files[0])
+    subtitles = 3
+    with pytest.raises(TypeError) as error:
+        video.add_subtitles(
+            subtitles=subtitles,
+            strategy="hard",
+            position="middle-center",
+        )
+    expected_error = (
+        "Expected 'subtitles' to be of type 'Subtitles', but got "
+        "'int' instead."
+    )
+    assert str(error.value) == expected_error
+
+
+def test_video_add_subtitles_wrong_type_strategy():
+    video = Video(test_files[0])
+    subtitles = Subtitles(test_files[2])
+    with pytest.raises(TypeError) as error:
+        video.add_subtitles(
+            subtitles=subtitles,
+            strategy=3,
+            position="middle-center",
+        )
+    expected_error = (
+        "Expected 'strategy' to be of type 'str', but got "
+        "'int' instead."
+    )
+    assert str(error.value) == expected_error
+
+
+def test_video_add_subtitles_wrong_type_position():
+    video = Video(test_files[0])
+    subtitles = Subtitles(test_files[2])
+    with pytest.raises(TypeError) as error:
+        video.add_subtitles(
+            subtitles=subtitles,
+            strategy="hard",
+            position=3,
+        )
+    expected_error = (
+        "Expected 'position' to be of type 'str', but got "
+        "'int' instead."
+    )
+    assert str(error.value) == expected_error
+
+
+def test_video_add_subtitles_wrong_type_scodec():
+    video = Video(test_files[0])
+    subtitles = Subtitles(test_files[2])
+    with pytest.raises(TypeError) as error:
+        video.add_subtitles(
+            subtitles=subtitles,
+            strategy="soft",
+            scodec=3
+        )
+    expected_error = (
+        "Expected 'scodec' to be of type 'str', but got "
+        "'int' instead."
+    )
+    assert str(error.value) == expected_error
+
+
+def test_video_add_subtitles_wrong_value_strategy():
+    video = Video(test_files[0])
+    subtitles = Subtitles(test_files[2])
+    with pytest.raises(ValueError) as error:
+        video.add_subtitles(
+            subtitles=subtitles,
+            strategy="test"
+        )
+    expected_error = (
+        "Invalid strategy 'test'. Expected one of: "
+        "hard, soft."
+    )
+    assert str(error.value) == expected_error
+
+
+def test_video_add_subtitles_wrong_value_position():
+    video = Video(test_files[0])
+    subtitles = Subtitles(test_files[2])
+    with pytest.raises(ValueError) as error:
+        video.add_subtitles(
+            subtitles=subtitles,
+            strategy="hard",
+            position="test"
+        )
+    expected_error = (
+        "Invalid position 'test'. Expected one of: "
+        "top-left, top-center, top-right, middle-left, middle-center, "
+        "middle-right, bottom-left, bottom-center, bottom-right."
+    )
+    assert str(error.value) == expected_error
+
+
+def test_video_add_subtitles_ass_strategy_hard():
+    video = Video(test_files[0])
+    subtitles = Subtitles(test_files[2])
+    video.add_subtitles(
+        subtitles=subtitles,
+        strategy="hard",
+        position="middle-center"
+    )
+    output = video.metadata()
+    assert output["format_name"] == "mov,mp4,m4a,3gp,3g2,mj2"
+    assert int(float(output["duration"])) == 15
+    assert len(output["streams"]) == 2
+    assert output["streams"][0]["codec_name"] == "h264"
+    assert output["streams"][0]["height"] == 1080
+    assert output["streams"][0]["width"] == 1920
+
+
+def test_video_add_subtitles_ass_strategy_soft():
+    video = Video(test_files[0])
+    subtitles = Subtitles(test_files[2])
+    video.add_subtitles(
+        subtitles=subtitles,
+        strategy="soft"
+    )
+    output = video.metadata()
+    assert output["format_name"] == "mov,mp4,m4a,3gp,3g2,mj2"
+    assert int(float(output["duration"])) == 15
+    assert len(output["streams"]) == 3
+    assert output["streams"][0]["codec_name"] == "h264"
+    assert output["streams"][0]["height"] == 1080
+    assert output["streams"][0]["width"] == 1920
+
+
+def test_video_add_subtitles_srt_strategy_hard():
+    video = Video(test_files[0])
+    subtitles = Subtitles(test_files[3])
+    video.add_subtitles(
+        subtitles=subtitles,
+        strategy="hard",
+        position="middle-center"
+    )
+    output = video.metadata()
+    assert output["format_name"] == "mov,mp4,m4a,3gp,3g2,mj2"
+    assert int(float(output["duration"])) == 15
+    assert len(output["streams"]) == 2
+    assert output["streams"][0]["codec_name"] == "h264"
+    assert output["streams"][0]["height"] == 1080
+    assert output["streams"][0]["width"] == 1920
+
+
+def test_video_add_subtitles_srt_strategy_soft():
+    video = Video(test_files[0])
+    subtitles = Subtitles(test_files[3])
+    video.add_subtitles(
+        subtitles=subtitles,
+        strategy="soft"
+    )
+    output = video.metadata()
+    assert output["format_name"] == "mov,mp4,m4a,3gp,3g2,mj2"
+    assert int(float(output["duration"])) == 15
+    assert len(output["streams"]) == 3
+    assert output["streams"][0]["codec_name"] == "h264"
+    assert output["streams"][0]["height"] == 1080
+    assert output["streams"][0]["width"] == 1920
+
+
+def test_video_add_subtitles_without_ffmpeg(monkeypatch):
+    # Mocking FFmpeg not installed
+    def mock_ffmpeg(*args, **kwargs):
+        raise ffmpeg.Error(
+            "ffmpeg",
+            "stdout",
+            "stderr"
+        )
+
+    video = Video(test_files[0])
+    subtitles = Subtitles(test_files[3])
+
+    # Replace ffmpeg.run by mocking
+    monkeypatch.setattr(ffmpeg, "run", mock_ffmpeg)
+
+    # Testing
+    with pytest.raises(ffmpeg.Error) as error:
+        video.add_subtitles(
+            subtitles=subtitles,
+            strategy="soft"
+        )
+    expected_error = (
+        "ffmpeg error (see stderr output for detail)"
     )
     assert str(error.value) == expected_error
