@@ -708,7 +708,7 @@ class Video(_Media):
                 acodec="copy",
                 scodec=scodec,
                 ss=0,
-                to=media_duration
+                t=media_duration
             )
         else:
             raise NameError(
