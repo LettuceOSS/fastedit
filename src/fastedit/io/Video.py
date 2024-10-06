@@ -707,7 +707,6 @@ class Video(_Media):
                 vcodec="copy",
                 acodec="copy",
                 scodec=scodec,
-                ss=0,
                 t=media_duration
             )
         else:
