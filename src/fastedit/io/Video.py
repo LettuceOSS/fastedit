@@ -686,14 +686,17 @@ class Video(_Media):
                 valid_positions[7]: 2,
                 valid_positions[8]: 3
             }
-            # Defining output
+            # Adding hard subtitles
             output = ffmpeg.output(
                 input,
                 self._second_temp_file,
                 vf=f"subtitles={subtitles._main_temp_file}:force_style='Alignment={position_mapping[position]}'"
             )
         elif strategy == valid_strategies[1]:
-            # Defining output
+            # Getting media duration
+            media_metadata = self.metadata()
+            media_duration = media_metadata["duration"]
+            # Adding soft subtitles
             input_subtitles = ffmpeg.input(
                 filename=subtitles._main_temp_file
             )
@@ -703,7 +706,9 @@ class Video(_Media):
                 self._second_temp_file,
                 vcodec="copy",
                 acodec="copy",
-                scodec=scodec
+                scodec=scodec,
+                ss=0,
+                to=media_duration
             )
         else:
             raise NameError(
