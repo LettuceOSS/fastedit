@@ -23,7 +23,7 @@ jobs:
           wget https://johnvansickle.com/ffmpeg/releases/ffmpeg-7.0.2-amd64-static.tar.xz
           
           # Extraire l'archive
-          tar -xf ffmpeg-7.0.2-arm64-static.tar.xz --strip-components=1
+          tar -xf ffmpeg-7.0.2-amd64-static.tar.xz --strip-components=1
           
           # Add directory to $PATH
           echo "$HOME/ffmpeg" >> $GITHUB_PATH
