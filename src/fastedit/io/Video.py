@@ -3,6 +3,7 @@ import ffmpeg
 from typing import Union
 from fastedit.core.Media import _Media
 from fastedit.io.Audio import Audio
+from fastedit.io.Subtitles import Subtitles
 from fastedit.core.utils import _guess_file_type
 
 
@@ -433,10 +434,14 @@ class Video(_Media):
             output
         )
         # Running command
-        ffmpeg.run(
-            stream_spec=overwrite,
-            quiet=True
-        )
+        try:
+            ffmpeg.run(
+                stream_spec=overwrite,
+                quiet=True
+            )
+        except ffmpeg.Error as error:
+            print(error.stderr)
+            print(error.stdout)
         # Saving result to main file
         self._move_and_replace()
 
@@ -568,6 +573,153 @@ class Video(_Media):
             self._second_temp_file,
             vcodec="copy"
         )
+        # Overwrite output file
+        overwrite = ffmpeg.overwrite_output(
+            output
+        )
+        # Running command
+        ffmpeg.run(
+            stream_spec=overwrite,
+            quiet=True
+        )
+        # Saving result to main file
+        self._move_and_replace()
+
+    def add_subtitles(
+        self,
+        subtitles: Subtitles,
+        strategy: str,
+        position: str = "bottom-center",
+        scodec: str = "mov_text"
+    ):
+        """
+        Adds subtitles to the video using a specified strategy.
+
+        Parameters
+        ----------
+        subtitles: Subtitles
+            The subtitles to be added to the video. This should be an instance
+            of the `Subtitles` class.
+        strategy: str
+            The strategy for handling the subtitles adding. Must be one of the
+            following:
+            - "hard": Subtitles are hard coded to the video. The subtitles are
+            burned into the video and cannot be removed.
+            - "soft": Subtitles are not burned into the video. The subtitles
+            can be enabled and disabled during the video playback.
+        position: str, optional
+            The position where subtitles should appear on the video. Defaults
+            to 'bottom-center'. Valid options: ["top-left", "top-center",
+            "top-right", "middle-left", "middle-center", "middle-right",
+            "bottom-left", "bottom-center", "bottom-right"].
+        scodec: str, optional
+            The codec to use for soft subtitles. Defaults to 'mov_text'.
+
+        Raises
+        ------
+        TypeError
+            If `subtitles` is not an instance of `Subtitles`.
+            If `strategy`, `position`, or `scodec` are not strings.
+        ValueError
+            If `strategy` is not one of the valid options: "hard" or "soft".
+            If `position` is not a valid option.
+        ffmpeg.Error
+            If the subtitle codec `scodec` is not recognized or not available
+            for the video format.
+        NameError
+            If the specified strategy is not found in the strategy mapping.
+        """
+        # Verifying parameters types
+        if not isinstance(subtitles, Subtitles):
+            raise TypeError(
+                f"Expected 'subtitles' to be of type 'Subtitles', but got "
+                f"'{type(subtitles).__name__}' instead."
+            )
+        if not isinstance(strategy, str):
+            raise TypeError(
+                f"Expected 'strategy' to be of type 'str', but got "
+                f"'{type(strategy).__name__}' instead."
+            )
+        if not isinstance(position, str):
+            raise TypeError(
+                f"Expected 'position' to be of type 'str', but got "
+                f"'{type(position).__name__}' instead."
+            )
+        if not isinstance(scodec, str):
+            raise TypeError(
+                f"Expected 'scodec' to be of type 'str', but got "
+                f"'{type(scodec).__name__}' instead."
+            )
+        # Verifying parameters consistency
+        valid_strategies = ["hard", "soft"]
+        if strategy not in valid_strategies:
+            raise ValueError(
+                f"Invalid strategy '{strategy}'. Expected one of: "
+                f"{', '.join(valid_strategies)}."
+            )
+        valid_positions = [
+            "top-left",
+            "top-center",
+            "top-right",
+            "middle-left",
+            "middle-center",
+            "middle-right",
+            "bottom-left",
+            "bottom-center",
+            "bottom-right"
+        ]
+        if position not in valid_positions:
+            raise ValueError(
+                f"Invalid position '{position}'. Expected one of: "
+                f"{', '.join(valid_positions)}."
+            )
+        # Input video
+        input = ffmpeg.input(
+            filename=self._main_temp_file
+        )
+        if strategy == valid_strategies[0]:
+            # Position mapping
+            position_mapping = {
+                valid_positions[0]: 5,
+                valid_positions[1]: 6,
+                valid_positions[2]: 7,
+                valid_positions[3]: 9,
+                valid_positions[4]: 10,
+                valid_positions[5]: 11,
+                valid_positions[6]: 1,
+                valid_positions[7]: 2,
+                valid_positions[8]: 3
+            }
+            # Adding hard subtitles
+            output = ffmpeg.output(
+                input,
+                self._second_temp_file,
+                vf=f"subtitles={subtitles._main_temp_file}:force_style='Alignment={position_mapping[position]}'"
+            )
+        elif strategy == valid_strategies[1]:
+            # Getting media duration
+            media_metadata = self.metadata()
+            media_duration = float(media_metadata["duration"])
+            extracted_subtitles = subtitles._extract(
+                start=0,
+                end=media_duration
+            )
+            # Adding soft subtitles
+            input_subtitles = ffmpeg.input(
+                filename=extracted_subtitles._main_temp_file
+            )
+            output = ffmpeg.output(
+                input,
+                input_subtitles,
+                self._second_temp_file,
+                vcodec="copy",
+                acodec="copy",
+                scodec=scodec
+            )
+        else:
+            raise NameError(
+                "Strategy not found"
+            )
         # Overwrite output file
         overwrite = ffmpeg.overwrite_output(
             output

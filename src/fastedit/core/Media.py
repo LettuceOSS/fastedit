@@ -122,17 +122,6 @@ class _Media(_Base):
         media_metadata = self.__refactor_ffprobe_data(ffprobe_metadata)
         return media_metadata
 
-    def _move_and_replace(
-        self
-    ):
-        """
-        Moving second file to main file
-        """
-        shutil.move(
-            src=self._second_temp_file,
-            dst=self._main_temp_file
-        )
-
     def clip(
         self,
         start: Union[int, float],

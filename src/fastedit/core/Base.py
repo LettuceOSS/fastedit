@@ -55,3 +55,14 @@ class _Base:
             path,
             self._main_temp_file
         )
+
+    def _move_and_replace(
+        self
+    ):
+        """
+        Moving second file to main file.
+        """
+        shutil.move(
+            src=self._second_temp_file,
+            dst=self._main_temp_file
+        )
