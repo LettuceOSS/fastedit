@@ -695,10 +695,14 @@ class Video(_Media):
         elif strategy == valid_strategies[1]:
             # Getting media duration
             media_metadata = self.metadata()
-            media_duration = media_metadata["duration"]
+            media_duration = float(media_metadata["duration"])
+            extracted_subtitles = subtitles._extract(
+                start=0,
+                end=media_duration
+            )
             # Adding soft subtitles
             input_subtitles = ffmpeg.input(
-                filename=subtitles._main_temp_file
+                filename=extracted_subtitles._main_temp_file
             )
             output = ffmpeg.output(
                 input,
@@ -706,8 +710,7 @@ class Video(_Media):
                 self._second_temp_file,
                 vcodec="copy",
                 acodec="copy",
-                scodec=scodec,
-                t=media_duration
+                scodec=scodec
             )
         else:
             raise NameError(
