@@ -13,8 +13,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install FFmpeg
-        run: sudo apt update && sudo apt install ffmpeg -y
+      - name: Download and install FFmpeg
+        run: |
+          # Creating FFmpeg directory
+          mkdir -p $HOME/ffmpeg
+          cd $HOME/ffmpeg
+
+          # Downloading FFmpeg
+          wget https://johnvansickle.com/ffmpeg/releases/ffmpeg-7.0.2-arm64-static.tar.xz
+          
+          # Extraire l'archive
+          tar -xf ffmpeg-7.0.2-arm64-static.tar.xz --strip-components=1
+          
+          # Add directory to $PATH
+          echo "$HOME/ffmpeg" >> $GITHUB_PATH
       - name: Verify FFmpeg installation
         run: ffmpeg -version
       - name: Upgrade pip
