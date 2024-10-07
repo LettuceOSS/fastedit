@@ -434,10 +434,14 @@ class Video(_Media):
             output
         )
         # Running command
-        ffmpeg.run(
-            stream_spec=overwrite,
-            quiet=True
-        )
+        try:
+            ffmpeg.run(
+                stream_spec=overwrite,
+                quiet=True
+            )
+        except ffmpeg.Error as error:
+            print(error.stderr)
+            print(error.stdout)
         # Saving result to main file
         self._move_and_replace()
 

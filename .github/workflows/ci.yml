@@ -5,9 +5,6 @@ on:
     branches:
       - 'main'
 
-env:
-  FFMPEG_BIN_DIR: /usr/local/bin
-
 jobs:
   Test:
     runs-on: ubuntu-latest
@@ -22,7 +19,7 @@ jobs:
           # Downloading FFmpeg
           wget https://johnvansickle.com/ffmpeg/releases/ffmpeg-7.0.2-amd64-static.tar.xz
           
-          # Extraire l'archive
+          # Archive extraction
           tar -xf ffmpeg-7.0.2-amd64-static.tar.xz --strip-components=1
           
           # Add directory to $PATH
