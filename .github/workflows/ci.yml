@@ -53,16 +53,10 @@ jobs:
           libvpx-dev \
           libfdk-aac-dev \
           libopus-dev \
-          libdav1d-dev
-      - name: Install libaom
-        run: |
-          cd ~/ffmpeg_sources && \
-          git -C aom pull 2> /dev/null || git clone --depth 1 https://aomedia.googlesource.com/aom && \
-          mkdir -p aom_build && \
-          cd aom_build && \
-          PATH="$HOME/bin:$PATH" cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="$HOME/ffmpeg_build" -DENABLE_TESTS=OFF -DENABLE_NASM=on ../aom && \
-          PATH="$HOME/bin:$PATH" make && \
-          make install
+          libdav1d-dev \
+          libsvtav1-dev \
+          libsvtav1enc-dev \
+          libsvtav1dec-dev
       - name: Install libsvtav1
         run: |
           cd ~/ffmpeg_sources && \
@@ -144,6 +138,7 @@ jobs:
       - name: Test installation
         run: source ~/.profile && ffmpeg -version
   Test:
+    needs: Build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
