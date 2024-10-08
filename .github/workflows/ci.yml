@@ -55,7 +55,8 @@ jobs:
           libdav1d-dev \
           libsvtav1-dev \
           libsvtav1enc-dev \
-          libsvtav1dec-dev
+          libsvtav1dec-dev \
+          libbluray-dev
       - name: Install libsvtav1
         run: |
           cd ~/ffmpeg_sources && \
