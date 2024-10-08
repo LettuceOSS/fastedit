@@ -90,7 +90,6 @@ jobs:
             --extra-libs="-lpthread -lm" \
             --ld="g++" \
             --bindir="$HOME/bin" \
-            --enable-avisynth \
             --enable-fontconfig \
             --enable-gpl \
             --enable-libaom \
